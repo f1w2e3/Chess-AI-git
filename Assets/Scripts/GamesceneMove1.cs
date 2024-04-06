@@ -4,12 +4,12 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 public class GamesceneMove1 : MonoBehaviour
 {
-    public int mode=0;
+    public int mode=0; //mode 변수를 지정하여 mode에 따라 게임 규칙이 달라지도록 함
 
     public void GameSceneCtrl_1()
     {
         SceneManager.LoadScene("Game"); //Game 씬으로 이동
-        mode=1;
+        mode=1; 
     }
 
      public void GameSceneCtrl_2()
