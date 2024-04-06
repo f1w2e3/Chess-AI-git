@@ -8,7 +8,7 @@ public class Chessman : MonoBehaviour
     public GameObject controller;
     public GameObject movePlate; //기물이 움직일 수 있는 경로
 
-// 위치
+// 위치 변수
 private int xBoard = -1; 
 private int yBoard = -1;
 
