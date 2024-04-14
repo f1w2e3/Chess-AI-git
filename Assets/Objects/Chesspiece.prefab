@@ -101,7 +101,7 @@ MonoBehaviour:
   controller: {fileID: 0}
   movePlate: {fileID: 3176892696897598884, guid: 6b9e67d0a8d594e23afbca67b3ed09be, type: 3}
   black_queen: {fileID: 21300000, guid: 5e389a554c96f4336bafc09a4b6ea75a, type: 3}
-  black_kinght: {fileID: 21300000, guid: cbecc19f420da4ab8aa15cc642d95dee, type: 3}
+  black_knight: {fileID: 21300000, guid: cbecc19f420da4ab8aa15cc642d95dee, type: 3}
   black_bishop: {fileID: 21300000, guid: e839040ac745840f59839ab54c48c975, type: 3}
   black_king: {fileID: 21300000, guid: 72c6f4e238d4240929d3a3d4d9c599a1, type: 3}
   black_rook: {fileID: 21300000, guid: 086bf2de348864eea87847c567d3c613, type: 3}
