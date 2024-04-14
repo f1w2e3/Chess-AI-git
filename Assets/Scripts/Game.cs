@@ -9,7 +9,10 @@ public class Game : MonoBehaviour
     public GameObject chesspiece; //체스 기물
 
     private GameObject[,] boardPositions = new GameObject[8,8]; // 기물들의 위치를 저장
+    //체스 보드판은 8*8 사이즈의 64개 칸으로 이루어져있음. 이를 2차원 배열로 저장함
+    
     private GameObject[] playerBlack = new GameObject[16]; 
+    //체스에서 흑과 백 각각 갖고 있는 기물의 총 개수는 16개
     private GameObject[] playerWhite = new GameObject[16];
 
 
