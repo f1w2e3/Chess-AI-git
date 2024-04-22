@@ -106,7 +106,7 @@ MonoBehaviour:
   black_king: {fileID: 21300000, guid: 72c6f4e238d4240929d3a3d4d9c599a1, type: 3}
   black_rook: {fileID: 21300000, guid: 086bf2de348864eea87847c567d3c613, type: 3}
   black_pawn: {fileID: 21300000, guid: 3c51e6f80c5634813b4b04cb9d493d94, type: 3}
-  white_queen: {fileID: 21300000, guid: 5e389a554c96f4336bafc09a4b6ea75a, type: 3}
+  white_queen: {fileID: 21300000, guid: cb01b8515e20b4757a6937c417d5af14, type: 3}
   white_knight: {fileID: 21300000, guid: 8168dea59c6554577a88051d886e929f, type: 3}
   white_bishop: {fileID: 21300000, guid: a5168d113feaa4ec5b654272932fb952, type: 3}
   white_king: {fileID: 21300000, guid: 3128a5fe24e91419887f5b376053f2a9, type: 3}
