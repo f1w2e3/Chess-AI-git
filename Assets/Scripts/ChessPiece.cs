@@ -10,7 +10,7 @@ public class ChessPiece : MonoBehaviour
 
     private void OnMouseDown()
     {
-        // ¸¶¿ì½º°¡ Å¬¸¯µÈ À§Ä¡·ÎºÎÅÍ ±â¹°ÀÇ À§Ä¡±îÁöÀÇ °Å¸®¸¦ °è»êÇÏ¿© offsetÀ» ¼³Á¤ÇÕ´Ï´Ù.
+        // ë§ˆìš°ìŠ¤ê°€ í´ë¦­ëœ ìœ„ì¹˜ë¡œë¶€í„° ê¸°ë¬¼ì˜ ìœ„ì¹˜ê¹Œì§€ì˜ ê±°ë¦¬ë¥¼ ê³„ì‚°í•˜ì—¬ offsetì„ ì„¤ì •í•©ë‹ˆë‹¤.
         offset = transform.position - Camera.main.ScreenToWorldPoint(Input.mousePosition);
         isDragging = true;
     }
@@ -19,7 +19,7 @@ public class ChessPiece : MonoBehaviour
     {
         if (isDragging)
         {
-            // ¸¶¿ì½º°¡ ÀÌµ¿ÇÑ À§Ä¡·Î ±â¹°À» ÀÌµ¿½ÃÅµ´Ï´Ù.
+            // ë§ˆìš°ìŠ¤ê°€ ì´ë™í•œ ìœ„ì¹˜ë¡œ ê¸°ë¬¼ì„ ì´ë™ì‹œí‚µë‹ˆë‹¤.
             Vector3 newPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition) + offset;
             transform.position = new Vector3(newPosition.x, newPosition.y, transform.position.z);
         }
@@ -28,9 +28,9 @@ public class ChessPiece : MonoBehaviour
     private void OnMouseUp()
     {
         isDragging = false;
-        // ±â¹°ÀÌ ¸¶¿ì½º¿¡¼­ ³õÀÎ À§Ä¡¿¡ ´ëÇÑ Ãß°¡ Ã³¸®¸¦ ÇÒ ¼ö ÀÖ½À´Ï´Ù.
+        // ê¸°ë¬¼ì´ ë§ˆìš°ìŠ¤ì—ì„œ ë†“ì¸ ìœ„ì¹˜ì— ëŒ€í•œ ì¶”ê°€ ì²˜ë¦¬ë¥¼ í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.
     }
-    // ¹ØÀ¸·Î´Â °¢ ±â¹°µéÀÇ ÀÌµ¿°¡´É À§Ä¡¸¦ °è»êÇÏ´Â ÄÚµåÀÔ´Ï´Ù.
+    // ë°‘ìœ¼ë¡œëŠ” ê° ê¸°ë¬¼ë“¤ì˜ ì´ë™ê°€ëŠ¥ ìœ„ì¹˜ë¥¼ ê³„ì‚°í•˜ëŠ” ì½”ë“œì…ë‹ˆë‹¤.
     public enum PieceType { Pawn, Rook, Knight, Bishop, Queen, King };
     public PieceType pieceType;
 
@@ -41,36 +41,86 @@ public class ChessPiece : MonoBehaviour
         switch (pieceType)
         {
             case PieceType.Pawn:
-                // ÆùÀÇ ÀÌµ¿ °¡´ÉÇÑ À§Ä¡ °è»ê
+                // í°ì˜ ì´ë™ ê°€ëŠ¥í•œ ìœ„ì¹˜ ê³„ì‚°
                 validMoves = new Vector2[2];
-                // (1, 0)°ú (2, 0)À¸·Î ÀÌµ¿ °¡´É
+                // (1, 0)ê³¼ (2, 0)ìœ¼ë¡œ ì´ë™ ê°€ëŠ¥
                 validMoves[0] = new Vector2(transform.position.x + 1, transform.position.y);
                 validMoves[1] = new Vector2(transform.position.x + 2, transform.position.y);
                 break;
 
             case PieceType.Rook:
-                // ·èÀÇ ÀÌµ¿ °¡´ÉÇÑ À§Ä¡ °è»ê
-                // ¼¼·Î¿Í °¡·Î·Î ÀÌµ¿ °¡´É
+                //ë£©ì˜ ì´ë™ ê°€ëŠ¥í•œ ìœ„ì¹˜ ê³„ì‚°
+                // ìˆ˜í‰ì´ë™
+                List<Vector2> rookMoves = new List<Vector2>();
+                for (int i = -7; i <= 7; i++)
+                {
+                    if (i != 0)
+                    {
+                        rookMoves.Add(new Vector2(transform.position.x + i, transform.position.y));
+                        rookMoves.Add(new Vector2(transform.position.x, transform.position.y + i));
+                    }
+                }
+                validMoves = rookMoves.ToArray();
                 break;
 
             case PieceType.Knight:
-                // ³ªÀÌÆ®ÀÇ ÀÌµ¿ °¡´ÉÇÑ À§Ä¡ °è»ê
-                // LÀÚ ¸ğ¾çÀ¸·Î ÀÌµ¿ °¡´É
+                //ë‚˜ì´íŠ¸ì˜ ì´ë™ ê°€ëŠ¥ ìœ„ì¹˜ ê³„ì‹¼
+                List<Vector2> knightMoves = new List<Vector2>();
+                knightMoves.Add(new Vector2(transform.position.x + 2, transform.position.y + 1));
+                knightMoves.Add(new Vector2(transform.position.x + 2, transform.position.y - 1));
+                knightMoves.Add(new Vector2(transform.position.x - 2, transform.position.y + 1));
+                knightMoves.Add(new Vector2(transform.position.x - 2, transform.position.y - 1));
+                knightMoves.Add(new Vector2(transform.position.x + 1, transform.position.y + 2));
+                knightMoves.Add(new Vector2(transform.position.x + 1, transform.position.y - 2));
+                knightMoves.Add(new Vector2(transform.position.x - 1, transform.position.y + 2));
+                knightMoves.Add(new Vector2(transform.position.x - 1, transform.position.y - 2));
+                validMoves = knightMoves.ToArray();
+                break;
                 break;
 
             case PieceType.Bishop:
-                // ºñ¼óÀÇ ÀÌµ¿ °¡´ÉÇÑ À§Ä¡ °è»ê 
-                // ´ë°¢¼±À¸·Î ÀÌµ¿ °¡´É
+                // ë¹„ìˆ ì´ë™ ê°€ëŠ¥ ìœ„ì¹˜ ê³„ì‚°
+                List<Vector2> bishopMoves = new List<Vector2>();
+                for (int i = -7; i <= 7; i++)
+                {
+                    if (i != 0)
+                    {
+                        bishopMoves.Add(new Vector2(transform.position.x + i, transform.position.y + i));
+                        bishopMoves.Add(new Vector2(transform.position.x - i, transform.position.y + i));
+                    }
+                }
+                validMoves = bishopMoves.ToArray();
                 break;
 
             case PieceType.Queen:
-                // ÄıÀÇ ÀÌµ¿ °¡´ÉÇÑ À§Ä¡ °è»ê
-                // ·è°ú ºñ¼óÀÇ ÀÌµ¿À» ÇÕÄ£ ÇüÅÂ
+                // í€¸ì˜ ì´ë™ ê°€ëŠ¥í•œ ìœ„ì¹˜ ê³„ì‚°
+                // í€¸ì˜ ì´ë™
+                List<Vector2> queenMoves = new List<Vector2>();
+                for (int i = -7; i <= 7; i++)
+                {
+                    if (i != 0)
+                    {
+                        queenMoves.Add(new Vector2(transform.position.x + i, transform.position.y + i));
+                        queenMoves.Add(new Vector2(transform.position.x - i, transform.position.y + i));
+                    }
+                }
+                validMoves = queenMoves.ToArray();
                 break;
 
             case PieceType.King:
-                // Å·ÀÇ ÀÌµ¿ °¡´ÉÇÑ À§Ä¡ °è»ê
-                // »óÇÏÁÂ¿ì, ´ë°¢¼±À¸·Î ÇÑ Ä­¾¿ ÀÌµ¿ °¡´É
+                //í‚¹ì˜ ì´ë™ ê°€ëŠ¥ìœ„ì¹˜ë“¤
+                List<Vector2> kingMoves = new List<Vector2>();
+                // ìƒí•˜ì¢Œìš° ì´ë™
+                kingMoves.Add(new Vector2(transform.position.x + 1, transform.position.y));
+                kingMoves.Add(new Vector2(transform.position.x - 1, transform.position.y));
+                kingMoves.Add(new Vector2(transform.position.x, transform.position.y + 1));
+                kingMoves.Add(new Vector2(transform.position.x, transform.position.y - 1));
+                // ëŒ€ê°ì„  ì´ë™
+                kingMoves.Add(new Vector2(transform.position.x + 1, transform.position.y + 1));
+                kingMoves.Add(new Vector2(transform.position.x - 1, transform.position.y + 1));
+                kingMoves.Add(new Vector2(transform.position.x + 1, transform.position.y - 1));
+                kingMoves.Add(new Vector2(transform.position.x - 1, transform.position.y - 1));
+                validMoves = kingMoves.ToArray();
                 break;
         }
 
