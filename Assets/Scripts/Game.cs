@@ -54,7 +54,9 @@ public class Game : MonoBehaviour
             SetPosition(playerBlack[i]);
             SetPosition(playerWhite[i]);
         }
-        Instantiate(chesspiece, new Vector3(0, 0, -1), Quaternion.identity);
+
+        
+        //Instantiate(chesspiece, new Vector3(0, 0, -1), Quaternion.identity); // 가운데에 실험용 기물을 두는 코드
         /*chesspiece에게 위치를 주는 함수.
         z값이 -1처럼 음수여야 체스 보드판 위로 기물이 올라온다*/
     }

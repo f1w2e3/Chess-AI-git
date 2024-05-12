@@ -48,11 +48,11 @@ public class Chessman : MonoBehaviour
         float x = xBoard;
         float y = yBoard;
 
-        x *= 0.66f;
-        y *= 0.66f;
+        x *= 0.675f;
+        y *= 0.68f;
 
-        x += -2.3f;
-        y += -2.3f;
+        x += -2.35f;
+        y += -2.8f;
 
         this.transform.position = new Vector3(x, y, -1.0f);
     }
