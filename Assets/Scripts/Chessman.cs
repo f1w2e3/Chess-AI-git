@@ -85,5 +85,200 @@ public class Chessman : MonoBehaviour
             Destroy(movePlates[i]);
         }
     }
+
+    private void OnMouseUp()
+    {
+        if (!controller.GetComponent<Game>().IsGameOver() && controller.GetComponent<Game>().GetCurrentPlayer() == player)
+        {
+            //이전 이동 경로 제거
+            DestroyMovePlates();
+
+            //이동 경로 생성
+            InitiateMovePlates();
+        }
+    }
+
+    public void InitiateMovePlates()
+    {
+        switch (this.name)
+        {
+            case "black_queen":
+            case "white_queen":
+                LineMovePlate(1, 0);
+                LineMovePlate(0, 1);
+                LineMovePlate(1, 1);
+                LineMovePlate(-1, 0);
+                LineMovePlate(0, -1);
+                LineMovePlate(-1, -1);
+                LineMovePlate(-1, 1);
+                LineMovePlate(1, -1);
+                break;
+            case "black_knight":
+            case "white_knight":
+                LMovePlate();
+                break;
+            case "black_bishop":
+            case "white_bishop":
+                LineMovePlate(1, 1);
+                LineMovePlate(1, -1);
+                LineMovePlate(-1, 1);
+                LineMovePlate(-1, -1);
+                break;
+            case "black_king":
+            case "white_king":
+                SurroundMovePlate();
+                break;
+            case "black_rook":
+            case "white_rook":
+                LineMovePlate(1, 0);
+                LineMovePlate(0, 1);
+                LineMovePlate(-1, 0);
+                LineMovePlate(0, -1);
+                break;
+            case "black_pawn":
+                PawnMovePlate(xBoard, yBoard - 1);
+                break;
+            case "white_pawn":
+                PawnMovePlate(xBoard, yBoard + 1);
+                break;
+        }
+    }
+
+    //직선 이동 경로 생성 (퀸, 룩, 비숍)
+    public void LineMovePlate(int xIncrement, int yIncrement)
+    {
+        Game sc = controller.GetComponent<Game>();
+
+        int x = xBoard + xIncrement;
+        int y = yBoard + yIncrement;
+
+        //해당 위치가 비어있을 때까지 이동 경로 생성
+        while (sc.PositionOnBoard(x, y) && sc.GetPosition(x, y) == null)
+        {
+            MovePlateSpawn(x, y);
+            x += xIncrement;
+            y += yIncrement;
+        }
+
+        //이동 경로에 상대 기물이 있을 경우 공격 경로 생성
+        if (sc.PositionOnBoard(x, y) && sc.GetPosition(x, y).GetComponent<Chessman>().player != player)
+        {
+            MovePlateAttackSpawn(x, y);
+        }
+    }
+
+    //L자 이동 경로 생성 (나이트)
+    public void LMovePlate()
+    {
+        PointMovePlate(xBoard + 1, yBoard + 2);
+        PointMovePlate(xBoard - 1, yBoard + 2);
+        PointMovePlate(xBoard + 2, yBoard + 1);
+        PointMovePlate(xBoard + 2, yBoard - 1);
+        PointMovePlate(xBoard + 1, yBoard - 2);
+        PointMovePlate(xBoard - 1, yBoard - 2);
+        PointMovePlate(xBoard - 2, yBoard + 1);
+        PointMovePlate(xBoard - 2, yBoard - 1);
+    }
+
+    //주변 이동 경로 생성 (킹)
+    public void SurroundMovePlate()
+    {
+        PointMovePlate(xBoard, yBoard + 1);
+        PointMovePlate(xBoard, yBoard - 1);
+        PointMovePlate(xBoard - 1, yBoard + 0);
+        PointMovePlate(xBoard - 1, yBoard - 1);
+        PointMovePlate(xBoard - 1, yBoard + 1);
+        PointMovePlate(xBoard + 1, yBoard + 0);
+        PointMovePlate(xBoard + 1, yBoard - 1);
+        PointMovePlate(xBoard + 1, yBoard + 1);
+    }
+
+    //특정 좌표에 이동 경로 생성
+    public void PointMovePlate(int x, int y)
+    {
+        Game sc = controller.GetComponent<Game>();
+        if (sc.PositionOnBoard(x, y))
+        {
+            GameObject cp = sc.GetPosition(x, y);
+
+            //해당 위치가 비어있을 경우 이동 경로 생성
+            if (cp == null)
+            {
+                MovePlateSpawn(x, y);
+            }
+            //이동 경로에 상대 기물이 있을 경우 공격 경로 생성
+            else if (cp.GetComponent<Chessman>().player != player)
+            {
+                MovePlateAttackSpawn(x, y);
+            }
+        }
+    }
+
+    //폰의 이동 경로 생성
+    public void PawnMovePlate(int x, int y)
+    {
+        Game sc = controller.GetComponent<Game>();
+        if (sc.PositionOnBoard(x, y))
+        {
+            // 앞칸이 비어있을 경우 이동 경로 생성
+            if (sc.GetPosition(x, y) == null)
+            {
+                MovePlateSpawn(x, y);
+            }
+            // 대각선에 상대 기물이 있을 경우 공격 경로 생성
+            if (sc.PositionOnBoard(x + 1, y) && sc.GetPosition(x + 1, y) != null && 
+                sc.GetPosition(x + 1, y).GetComponent<Chessman>().player != player)
+            {
+                MovePlateAttackSpawn(x + 1, y);
+            }
+
+            if (sc.PositionOnBoard(x - 1, y) && sc.GetPosition(x - 1, y) != null && 
+                sc.GetPosition(x - 1, y).GetComponent<Chessman>().player != player)
+            {
+                MovePlateAttackSpawn(x - 1, y);
+            }
+        }
+    }
+
+    // 이동 경로 생성
+    public void MovePlateSpawn(int matrixX, int matrixY)
+    {
+        float x = matrixX;
+        float y = matrixY;
+
+        x *= 0.675f;
+        y *= 0.68f;
+
+        x += -2.35f;
+        y += -2.82f;
+
+        // 이동 경로 오브젝트 생성
+        GameObject mp = Instantiate(movePlate, new Vector3(x, y, -3.0f), Quaternion.identity);
+
+        MovePlate mpScript = mp.GetComponent<MovePlate>();
+        mpScript.SetReference(gameObject);
+        mpScript.SetCoords(matrixX, matrixY);
+    }
+
+    // 공격 경로 생성
+    public void MovePlateAttackSpawn(int matrixX, int matrixY)
+    {
+        float x = matrixX;
+        float y = matrixY;
+
+        x *= 0.675f;
+        y *= 0.68f;
+
+        x += -2.35f;
+        y += -2.82f;
+
+        // 공격 경로 오브젝트 생성
+        GameObject mp = Instantiate(movePlate, new Vector3(x, y, -3.0f), Quaternion.identity);
+
+        MovePlate mpScript = mp.GetComponent<MovePlate>();
+        mpScript.attack = true;
+        mpScript.SetReference(gameObject);
+        mpScript.SetCoords(matrixX, matrixY);
+    }
 }
 

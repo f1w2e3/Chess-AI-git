@@ -72,6 +72,28 @@ public class Game : MonoBehaviour
         return obj;
     }
 
+    public string GetCurrentPlayer()
+    {
+        return currentPlayer;
+    }
+
+    public bool IsGameOver()
+    {
+        return gameOver;
+    }
+
+    public void NextTurn()
+    {
+        if (currentPlayer == "white")
+        {
+            currentPlayer = "black";
+        }
+        else
+        {
+            currentPlayer = "white";
+        }
+    }
+
     public void SetPosition(GameObject obj)
     {
         Chessman cm = obj.GetComponent<Chessman>();
@@ -87,5 +109,12 @@ public class Game : MonoBehaviour
     public GameObject GetPosition(int x, int y)
     {
         return boardPositions[x, y];
+    }
+
+    //좌표가 범위 내에 있는지 확인
+    public bool PositionOnBoard(int x, int y)
+    {
+        if (x < 0 || y < 0 || x >= boardPositions.GetLength(0) || y >= boardPositions.GetLength(1)) return false;
+        return true;
     }
 }
