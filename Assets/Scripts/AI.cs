@@ -4,19 +4,12 @@ using UnityEngine;
 
 public class NewBehaviourScript : MonoBehaviour
 {
-    // Start is called before the first frame update
+
+/*
     void Start()
     {
         
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-
 public class Chess
 {
     // 체스판 및 기물 관련 코드
@@ -63,7 +56,5 @@ public class Chess
         // 체스판 상태를 평가하여 정수 값 반환
         // ...
     }
-}
-
-
+    */
 }
