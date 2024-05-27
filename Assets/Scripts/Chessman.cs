@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Unity.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Chessman : MonoBehaviour
@@ -15,7 +17,11 @@ public class Chessman : MonoBehaviour
 
     //black player와 white player를 구분하기 위함. 체스에서 흰 말을 플레이하는 사람이 white player
     private string player;
+    
+    //체스모드에 따른 기물 움직임을 위해 저장
 
+    //폰의 최초이동시 두칸이나 캐슬링을 위해 이 기물이 이동했는지를 저장
+    bool isMoved = false;
 
     public Sprite black_queen, black_knight, black_bishop, black_king, black_rook, black_pawn;
     public Sprite white_queen, white_knight, white_bishop, white_king, white_rook, white_pawn;
@@ -76,7 +82,6 @@ public class Chessman : MonoBehaviour
     {
         yBoard = y;
     }
-
     public void DestroyMovePlates()
     {
         GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
@@ -104,11 +109,21 @@ public class Chessman : MonoBehaviour
         {
             case "black_queen":
             case "white_queen":
-                LineMovePlate(1, 0);
-                LineMovePlate(0, 1);
+                if(ChessGameMode.GameMode == "default")
+                {
+                    LineMovePlate(1, 0);
+                    LineMovePlate(0, 1);
+                    LineMovePlate(-1, 0);
+                    LineMovePlate(0, -1);
+                }
+                else if(ChessGameMode.GameMode == "mono")
+                {
+                    LineMoveMonoPlate(1,0);
+                    LineMoveMonoPlate(0,1);
+                    LineMoveMonoPlate(-1,0);
+                    LineMoveMonoPlate(0,-1);
+                }
                 LineMovePlate(1, 1);
-                LineMovePlate(-1, 0);
-                LineMovePlate(0, -1);
                 LineMovePlate(-1, -1);
                 LineMovePlate(-1, 1);
                 LineMovePlate(1, -1);
@@ -125,15 +140,28 @@ public class Chessman : MonoBehaviour
                 LineMovePlate(-1, -1);
                 break;
             case "black_king":
-            case "white_king":
-                SurroundMovePlate();
+            case "white_king": 
+                if(ChessGameMode.GameMode == "default")
+                    SurroundMovePlate();
+                else if(ChessGameMode.GameMode == "mono")
+                    SurroundMoveMonoPlate();
                 break;
             case "black_rook":
             case "white_rook":
-                LineMovePlate(1, 0);
-                LineMovePlate(0, 1);
-                LineMovePlate(-1, 0);
-                LineMovePlate(0, -1);
+                if(ChessGameMode.GameMode == "default")
+                {
+                    LineMovePlate(1, 0);
+                    LineMovePlate(0, 1);
+                    LineMovePlate(-1, 0);
+                    LineMovePlate(0, -1);
+                }
+                else if(ChessGameMode.GameMode == "mono")
+                {
+                    LineMoveMonoPlate(1,0);
+                    LineMoveMonoPlate(0,1);
+                    LineMoveMonoPlate(-1,0);
+                    LineMoveMonoPlate(0,-1);
+                }
                 break;
             case "black_pawn":
                 PawnMovePlate(xBoard, yBoard - 1);
@@ -167,6 +195,38 @@ public class Chessman : MonoBehaviour
         }
     }
 
+    //모노체스의 직선 이동 경로 생성(퀸,룩)
+        public void LineMoveMonoPlate(int xIncrement, int yIncrement)
+    {
+        Game sc = controller.GetComponent<Game>();
+
+        int x = xBoard + xIncrement;
+        int y = yBoard + yIncrement;
+        
+        bool samecolor = false;
+
+        //해당 위치가 비어있을 때까지 이동 경로 생성
+        while (sc.PositionOnBoard(x, y) && sc.GetPosition(x, y) == null)
+        {
+            if(samecolor == true)
+            {
+                MovePlateSpawn(x, y);
+                samecolor = false;
+            }
+            else
+                samecolor = true;
+            x += xIncrement;
+            y += yIncrement;
+        }
+
+        //이동 경로에 상대 기물이 있을 경우 공격 경로 생성
+        if (sc.PositionOnBoard(x, y) && sc.GetPosition(x, y).GetComponent<Chessman>().player != player)
+        {
+            if(samecolor == true)
+                MovePlateAttackSpawn(x, y);
+        }
+    }
+
     //L자 이동 경로 생성 (나이트)
     public void LMovePlate()
     {
@@ -189,6 +249,15 @@ public class Chessman : MonoBehaviour
         PointMovePlate(xBoard - 1, yBoard - 1);
         PointMovePlate(xBoard - 1, yBoard + 1);
         PointMovePlate(xBoard + 1, yBoard + 0);
+        PointMovePlate(xBoard + 1, yBoard - 1);
+        PointMovePlate(xBoard + 1, yBoard + 1);
+    }
+
+    //단섹 체스 주변 이동 경로 생성(킹)
+    public void SurroundMoveMonoPlate()
+    {
+        PointMovePlate(xBoard - 1, yBoard - 1);
+        PointMovePlate(xBoard - 1, yBoard + 1);
         PointMovePlate(xBoard + 1, yBoard - 1);
         PointMovePlate(xBoard + 1, yBoard + 1);
     }

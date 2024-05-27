@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 
+
+
 public class Game : MonoBehaviour
 {
     public GameObject chesspiece; //체스 기물
@@ -19,6 +21,7 @@ public class Game : MonoBehaviour
     private string currentPlayer = "white";
 
     private bool gameOver = false;
+
 
     // Start is called before the first frame update
     void Start()

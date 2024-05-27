@@ -326,7 +326,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Button2
+  m_Text: "\uB2E8\uC0C9\uCCB4\uC2A4"
 --- !u!222 &313959551
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -405,7 +405,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Button1
+  m_Text: "\uAE30\uBCF8\uCCB4\uC2A4"
 --- !u!222 &494026582
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -599,7 +599,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bab12b07b3d7149fca1ba86df900bb8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mode: 0
 --- !u!1 &896139885
 GameObject:
   m_ObjectHideFlags: 0
