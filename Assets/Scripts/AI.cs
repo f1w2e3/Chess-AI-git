@@ -3,13 +3,41 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Collections.Generic;
 
+
+/*
 public class MinimaxAI : MonoBehaviour
 {
     // 체스 보드판
     public ChessBoard board;
 
+      // 게임 스크립트 참조
+    public Game game;
+
+    // 체스 기물 프리팹
+    private GameObject chesspiece;
+
+    // 체스 보드판 위치 배열
+    private GameObject[,] boardPositions;
+
+
+
     // 최대 탐색 깊이 4
     public int maxDepth = 4;
+
+     void Start()
+    {
+        // game 스크립트에서 정보를 가져옵니다.
+        chesspiece = game.chesspiece;
+        boardPositions = game.boardPositions;
+        
+    }
+    
+    public enum Player
+{
+    White,
+    Black
+}
+
 
     // 미니맥스 알고리즘
     public Move GetBestMove()
@@ -86,12 +114,85 @@ public class MinimaxAI : MonoBehaviour
     private int evaluate(Player player)
     {
         // 평가 함수를 구현합니다.
-        /* 예: 
-        1.백팀의 기물 개수가 많을수록 높은 점수를 반환합니다.
-        2.킹, 퀸 등 중요 기물이 얼마나 보드판 위에서 안전한 위치에 놓여있는지에 따라 가중치를 부여할수도 있음.
-        */
+        //예: 
+        //1.백팀의 기물 개수가 많을수록 높은 점수를 반환합니다.
+        //2.킹, 퀸 등 중요 기물이 얼마나 보드판 위에서 안전한 위치에 놓여있는지에 따라 가중치를 부여할수도 있음.
+        
         var whitePieces = board.GetPieces(Player.White).Count;
         var blackPieces = board.GetPieces(Player.Black).Count;
         return whitePieces - blackPieces;
     }
+
+        public class Move
+    {
+        public Piece Piece { get; set; } // 이동하는 기물
+        public int From { get; set; } // 출발 위치
+        public int To { get; set; } // 도착 위치
+        public int Score { get; set; } // 해당 이동에 대한 평가 점수
+
+        public Move(Piece piece, int from, int to, int score)
+        {
+            Piece = piece;
+            From = from;
+            To = to;
+            Score = score;
+        }
+
+        // 기본 생성자
+        public Move(Piece piece, int score) : this(piece, 0, 0, score) { }
+
+        public Move(Piece piece, int from, int to) : this(piece, from, to, 0) { }
+
+        // 기본 생성자 (평가 점수를 위한 경우)
+        public Move(int score) : this(null, 0, 0, score) { }
+    }
+
+public class ChessBoard
+{
+  
+
+
+    public bool IsGameOver()
+{
+    
+    // 게임 종료 조건을 만족하지 않는 경우
+    return false; // 게임 종료되지 않음
 }
+
+ public List<Move> GetValidMoves(Player player)
+    {
+        List<Move> validMoves = new List<Move>();
+        return validMoves;
+    }
+
+        public void MakeMove(Move move)
+    {
+        // 이동을 실행합니다.
+        // ... (기능 구현) ...
+    }
+
+    // 이동을 취소하는 함수
+    public void UndoMove(Move move)
+    {
+        // 이동을 취소합니다.
+        // ... (기능 구현) ...
+    }
+
+     public List<Piece> GetPieces(Player player)
+    {
+      List<Piece> pieces = new List<Piece>();
+      return pieces;
+    }
+
+     public int GetResult(Player player)
+    {
+       return 0;
+    }
+
+public Player CurrentPlayer { get; private set; }
+
+}
+    
+}
+
+*/

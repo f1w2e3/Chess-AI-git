@@ -11,7 +11,7 @@ public class Game : MonoBehaviour
     //체스에서 흑과 백 각각 갖고 있는 기물의 총 개수는 16개
     //기물들의 위치를 저장
     //체스 보드판은 8*8 사이즈의 64개 칸으로 이루어져있음. 이를 2차원 배열로 저장함
-    private GameObject[,] boardPositions = new GameObject[8, 8];
+    public GameObject[,] boardPositions = new GameObject[8, 8];
     private GameObject[] playerBlack = new GameObject[16];
     private GameObject[] playerWhite = new GameObject[16];
 
