@@ -8,11 +8,11 @@ public class MovePlate : MonoBehaviour
 
     GameObject reference = null;
 
-    //Ã¼½ºÆÇ Æ÷Áö¼Ç
+    //Ã¼ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     int matrixX;
     int matrixY;
 
-    //false = ÀÌµ¿, true = °ø°Ý
+    //false = ï¿½Ìµï¿½, true = ï¿½ï¿½ï¿½ï¿½
     public bool attack = false;
 
     public void Start()
@@ -34,7 +34,8 @@ public class MovePlate : MonoBehaviour
             Destroy(cp);
         }
 
-        controller.GetComponent<Game>().SetPositionEmpty(reference.GetComponent<Chessman>().GetXBoard(),
+        controller.GetComponent<Game>().SetPositionEmpty(
+            reference.GetComponent<Chessman>().GetXBoard(),
             reference.GetComponent<Chessman>().GetYBoard());
 
         reference.GetComponent<Chessman>().SetXBoard(matrixX);
@@ -43,6 +44,7 @@ public class MovePlate : MonoBehaviour
 
         controller.GetComponent<Game>().SetPosition(reference);
 
+        reference.GetComponent<Chessman>().SetIsMoved(true);
         reference.GetComponent<Chessman>().DestroyMovePlates();
     }
 

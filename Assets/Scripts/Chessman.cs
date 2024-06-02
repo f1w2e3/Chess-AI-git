@@ -23,8 +23,8 @@ public class Chessman : MonoBehaviour
     //폰의 최초이동시 두칸이나 캐슬링을 위해 이 기물이 이동했는지를 저장
     bool isMoved = false;
 
-    public Sprite black_queen, black_knight, black_bishop, black_king, black_rook, black_pawn;
-    public Sprite white_queen, white_knight, white_bishop, white_king, white_rook, white_pawn;
+    public Sprite black_queen, black_knight, black_bishop, black_king, black_rook, black_pawn, black_camel;
+    public Sprite white_queen, white_knight, white_bishop, white_king, white_rook, white_pawn, white_camel;
 
     public void Activate()
     {
@@ -40,12 +40,16 @@ public class Chessman : MonoBehaviour
             case "black_king": this.GetComponent<SpriteRenderer>().sprite = black_king; player = "black"; break;
             case "black_rook": this.GetComponent<SpriteRenderer>().sprite = black_rook; player = "black"; break;
             case "black_pawn": this.GetComponent<SpriteRenderer>().sprite = black_pawn; player = "black"; break;
+            case "black_camel": this.GetComponent<SpriteRenderer>().sprite = black_camel; player = "black"; break;
+
+
             case "white_queen": this.GetComponent<SpriteRenderer>().sprite = white_queen; player = "white"; break;
             case "white_knight": this.GetComponent<SpriteRenderer>().sprite = white_knight; player = "white"; break;
             case "white_bishop": this.GetComponent<SpriteRenderer>().sprite = white_bishop; player = "white"; break;
             case "white_king": this.GetComponent<SpriteRenderer>().sprite = white_king; player = "white"; break;
             case "white_rook": this.GetComponent<SpriteRenderer>().sprite = white_rook; player = "white"; break;
             case "white_pawn": this.GetComponent<SpriteRenderer>().sprite = white_pawn; player = "white"; break;
+            case "white_camel": this.GetComponent<SpriteRenderer>().sprite = white_camel; player = "white"; break;
         }
     }
 
@@ -81,6 +85,15 @@ public class Chessman : MonoBehaviour
     public void SetYBoard(int y)
     {
         yBoard = y;
+    }
+
+    public bool GetIsMoved()
+    {
+        return isMoved;
+    }
+    public void SetIsMoved(bool tmp)
+    {
+        isMoved = tmp;
     }
     public void DestroyMovePlates()
     {
@@ -132,6 +145,10 @@ public class Chessman : MonoBehaviour
             case "white_knight":
                 LMovePlate();
                 break;
+            case "black_camel":
+            case "white_camel":
+                LCamelMovePlate();
+                break;
             case "black_bishop":
             case "white_bishop":
                 LineMovePlate(1, 1);
@@ -164,10 +181,16 @@ public class Chessman : MonoBehaviour
                 }
                 break;
             case "black_pawn":
-                PawnMovePlate(xBoard, yBoard - 1);
+                if(ChessGameMode.GameMode == "default")
+                    PawnMovePlate(xBoard, yBoard - 1);
+                if(isMoved == false)
+                    PawnMovePlate(xBoard, yBoard - 2);
                 break;
             case "white_pawn":
-                PawnMovePlate(xBoard, yBoard + 1);
+                if(ChessGameMode.GameMode == "default")
+                    PawnMovePlate(xBoard, yBoard + 1);
+                if(isMoved == false)
+                    PawnMovePlate(xBoard, yBoard + 2);
                 break;
         }
     }
@@ -238,6 +261,19 @@ public class Chessman : MonoBehaviour
         PointMovePlate(xBoard - 1, yBoard - 2);
         PointMovePlate(xBoard - 2, yBoard + 1);
         PointMovePlate(xBoard - 2, yBoard - 1);
+    }
+
+    //L자 이동경로(카멜)
+        public void LCamelMovePlate()
+    {
+        PointMovePlate(xBoard + 1, yBoard + 3);
+        PointMovePlate(xBoard - 1, yBoard + 3);
+        PointMovePlate(xBoard + 3, yBoard + 1);
+        PointMovePlate(xBoard + 3, yBoard - 1);
+        PointMovePlate(xBoard + 1, yBoard - 3);
+        PointMovePlate(xBoard - 1, yBoard - 3);
+        PointMovePlate(xBoard - 3, yBoard + 1);
+        PointMovePlate(xBoard - 3, yBoard - 1);
     }
 
     //주변 이동 경로 생성 (킹)
