@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Collections;
 using UnityEngine;
 
 public class Chessman : MonoBehaviour
@@ -13,7 +12,7 @@ public class Chessman : MonoBehaviour
     private int xBoard = -1;
     private int yBoard = -1;
 
-    //black player와 white player를 구분하기 위함. 체스에서 흰 말을 플레이하는 사람이 white player
+    // black player와 white player를 구분하기 위함. 체스에서 흰 말을 플레이하는 사람이 white player
     private string player;
 
 
@@ -95,6 +94,7 @@ public class Chessman : MonoBehaviour
 
             //이동 경로 생성
             InitiateMovePlates();
+             controller.GetComponent<Game>().NextTurn(); // 턴 변경
         }
     }
 
@@ -280,5 +280,164 @@ public class Chessman : MonoBehaviour
         mpScript.SetReference(gameObject);
         mpScript.SetCoords(matrixX, matrixY);
     }
-}
 
+
+     public List<Game.Move> GetPossibleMoves(int x, int y)
+    {
+        List<Game.Move> moves = new List<Game.Move>();
+
+        switch (this.name)
+        {
+            case "white_queen":
+            case "black_queen":
+                // 퀸의 이동 규칙 (직선, 대각선)
+                moves.AddRange(LineMove(x, y, 1, 0)); // 오른쪽
+                moves.AddRange(LineMove(x, y, 0, 1)); // 위쪽
+                moves.AddRange(LineMove(x, y, -1, 0)); // 왼쪽
+                moves.AddRange(LineMove(x, y, 0, -1)); // 아래쪽
+                moves.AddRange(LineMove(x, y, 1, 1)); // 오른쪽 위
+                moves.AddRange(LineMove(x, y, 1, -1)); // 오른쪽 아래
+                moves.AddRange(LineMove(x, y, -1, 1)); // 왼쪽 위
+                moves.AddRange(LineMove(x, y, -1, -1)); // 왼쪽 아래
+                break;
+            case "white_rook":
+            case "black_rook":
+                // 룩의 이동 규칙 (직선)
+                moves.AddRange(LineMove(x, y, 1, 0)); // 오른쪽
+                moves.AddRange(LineMove(x, y, 0, 1)); // 위쪽
+                moves.AddRange(LineMove(x, y, -1, 0)); // 왼쪽
+                moves.AddRange(LineMove(x, y, 0, -1)); // 아래쪽
+                break;
+            case "white_knight":
+            case "black_knight":
+                // 나이트의 이동 규칙 (L자 이동)
+                moves.Add(new Game.Move(x, y, x + 1, y + 2,0)); // 오른쪽 위 2칸
+                moves.Add(new Game.Move(x, y, x + 2, y + 1,0)); // 오른쪽 2칸 위
+                moves.Add(new Game.Move(x, y, x + 2, y - 1,0)); // 오른쪽 2칸 아래
+                moves.Add(new Game.Move(x, y, x + 1, y - 2,0)); // 오른쪽 아래 2칸
+                moves.Add(new Game.Move(x, y, x - 1, y + 2,0)); // 왼쪽 위 2칸
+                moves.Add(new Game.Move(x, y, x - 2, y + 1,0)); // 왼쪽 2칸 위
+                moves.Add(new Game.Move(x, y, x - 2, y - 1,0)); // 왼쪽 2칸 아래
+                moves.Add(new Game.Move(x, y, x - 1, y - 2,0)); // 왼쪽 아래 2칸
+                break;
+            case "white_bishop":
+            case "black_bishop":
+                // 비숍의 이동 규칙 (대각선)
+                moves.AddRange(LineMove(x, y, 1, 1)); // 오른쪽 위
+                moves.AddRange(LineMove(x, y, 1, -1)); // 오른쪽 아래
+                moves.AddRange(LineMove(x, y, -1, 1)); // 왼쪽 위
+                moves.AddRange(LineMove(x, y, -1, -1)); // 왼쪽 아래
+                break;
+            case "white_king":
+            case "black_king":
+                // 킹의 이동 규칙 (주변 1칸)
+                moves.Add(new Game.Move(x, y, x + 1, y,0)); // 오른쪽
+                moves.Add(new Game.Move(x, y, x, y + 1,0)); // 위쪽
+                moves.Add(new Game.Move(x, y, x - 1, y,0)); // 왼쪽
+                moves.Add(new Game.Move(x, y, x, y - 1,0)); // 아래쪽
+                moves.Add(new Game.Move(x, y, x + 1, y + 1,0)); // 오른쪽 위
+                moves.Add(new Game.Move(x, y, x + 1, y - 1,0)); // 오른쪽 아래
+                moves.Add(new Game.Move(x, y, x - 1, y + 1,0)); // 왼쪽 위
+                moves.Add(new Game.Move(x, y, x - 1, y - 1,0)); // 왼쪽 아래
+                break;
+            case "white_pawn":
+                // 폰의 이동 규칙 (앞으로 한 칸 또는 두 칸, 대각선 공격)
+                if (y < 7)
+                {
+                    // 앞으로 한 칸 이동 가능
+                    if (controller.GetComponent<Game>().GetPosition(x, y + 1) == null)
+                    {
+                        moves.Add(new Game.Move(x, y, x, y + 1,0));
+
+                        // 시작 위치에서 두 칸 이동 가능
+                        if (y == 1 && controller.GetComponent<Game>().GetPosition(x, y + 2) == null)
+                        {
+                            moves.Add(new Game.Move(x, y, x, y + 2,0));
+                        }
+                    }
+
+                    // 대각선 공격 가능
+                    if (x < 7 && controller.GetComponent<Game>().GetPosition(x + 1, y + 1) != null &&
+                        controller.GetComponent<Game>().GetPosition(x + 1, y + 1).GetComponent<Chessman>().player == "black")
+                    {
+                        moves.Add(new Game.Move(x, y, x + 1, y + 1,0));
+                    }
+                    if (x > 0 && controller.GetComponent<Game>().GetPosition(x - 1, y + 1) != null &&
+                        controller.GetComponent<Game>().GetPosition(x - 1, y + 1).GetComponent<Chessman>().player == "black")
+                    {
+                        moves.Add(new Game.Move(x, y, x - 1, y + 1,0));
+                    }
+                }
+                break;
+            case "black_pawn":
+                // 폰의 이동 규칙 (앞으로 한 칸 또는 두 칸, 대각선 공격)
+                if (y > 0)
+                {
+                    // 앞으로 한 칸 이동 가능
+                    if (controller.GetComponent<Game>().GetPosition(x, y - 1) == null)
+                    {
+                        moves.Add(new Game.Move(x, y, x, y - 1,0));
+
+                        // 시작 위치에서 두 칸 이동 가능
+                        if (y == 6 && controller.GetComponent<Game>().GetPosition(x, y - 2) == null)
+                        {
+                            moves.Add(new Game.Move(x, y, x, y - 2,0));
+                        }
+                    }
+
+                    // 대각선 공격 가능
+                    if (x < 7 && controller.GetComponent<Game>().GetPosition(x + 1, y - 1) != null &&
+                        controller.GetComponent<Game>().GetPosition(x + 1, y - 1).GetComponent<Chessman>().player == "white")
+                    {
+                        moves.Add(new Game.Move(x, y, x + 1, y - 1,0));
+                    }
+                    if (x > 0 && controller.GetComponent<Game>().GetPosition(x - 1, y - 1) != null &&
+                        controller.GetComponent<Game>().GetPosition(x - 1, y - 1).GetComponent<Chessman>().player == "white")
+                    {
+                        moves.Add(new Game.Move(x, y, x - 1, y - 1,0));
+                    }
+                }
+                break;
+        }
+
+        return moves;
+    }
+
+     private List<Game.Move> LineMove(int x, int y, int xIncrement, int yIncrement)
+    {
+        List<Game.Move> moves = new List<Game.Move>();
+        int newX = x + xIncrement;
+        int newY = y + yIncrement;
+
+        // 체스판 범위 내에 있는지 확인
+        while (controller.GetComponent<Game>().PositionOnBoard(newX, newY))
+        {
+            // 해당 칸이 비어있으면 이동 가능
+            if (controller.GetComponent<Game>().GetPosition(newX, newY) == null)
+            {
+                moves.Add(new Game.Move(x, y, newX, newY,0));
+            }
+            // 해당 칸에 상대 기물이 있으면 공격 가능
+            else if (controller.GetComponent<Game>().GetPosition(newX, newY).GetComponent<Chessman>().player != player)
+            {
+                moves.Add(new Game.Move(x, y, newX, newY,0));
+                break; // 상대 기물을 지나서 이동 불가능
+            }
+            else
+            {
+                break; // 같은 편 기물을 지나서 이동 불가능
+            }
+
+            newX += xIncrement;
+            newY += yIncrement;
+        }
+
+        return moves;
+    }
+
+       public string GetPlayer() 
+    {
+        return player; 
+    }
+
+}
