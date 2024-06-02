@@ -76,7 +76,7 @@ public class ChessPiece : MonoBehaviour
                 knightMoves.Add(new Vector2(transform.position.x - 1, transform.position.y - 2));
                 validMoves = knightMoves.ToArray();
                 break;
-                break;
+        
 
             case PieceType.Bishop:
                 // 비숍 이동 가능 위치 계산
@@ -126,4 +126,10 @@ public class ChessPiece : MonoBehaviour
 
         return validMoves;
     }
+
+
+
+
+
+
 }
