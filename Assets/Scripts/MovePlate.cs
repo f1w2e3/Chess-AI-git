@@ -8,11 +8,9 @@ public class MovePlate : MonoBehaviour
 
     GameObject reference = null;
 
-    //체스판 포지션
     int matrixX;
     int matrixY;
 
-    //false = 이동, true = 공격
     public bool attack = false;
 
     public void Start()
@@ -30,7 +28,6 @@ public class MovePlate : MonoBehaviour
         if (attack)
         {
             GameObject cp = controller.GetComponent<Game>().GetPosition(matrixX, matrixY);
-
             Destroy(cp);
         }
 
@@ -42,6 +39,8 @@ public class MovePlate : MonoBehaviour
         reference.GetComponent<Chessman>().SetCoords();
 
         controller.GetComponent<Game>().SetPosition(reference);
+
+        controller.GetComponent<Game>().NextTurn();
 
         reference.GetComponent<Chessman>().DestroyMovePlates();
     }
@@ -60,5 +59,15 @@ public class MovePlate : MonoBehaviour
     public GameObject GetReference()
     {
         return reference;
+    }
+
+    public void ExecuteRandomMove()
+    {
+        GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
+        if (movePlates.Length > 0)
+        {
+            int index = Random.Range(0, movePlates.Length);
+            movePlates[index].GetComponent<MovePlate>().OnMouseUp();
+        }
     }
 }
