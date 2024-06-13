@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
+using System.Linq; 
 
 public class Game : MonoBehaviour
 {
@@ -20,15 +21,18 @@ public class Game : MonoBehaviour
 
     private bool gameOver = false;
 
+    void Update()
+    {
+        // 흑의 턴일 경우 컴퓨터 턴 진행
+        if (GetCurrentPlayer() == "black")
+        {
+            ComputerTurn();
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        /*
-        GameObject testObj = Instantiate(chesspiece, new Vector3(0,0,-1), Quaternion.identity); 
-          //chesspiece에게 위치를 주는 함수.
-          //z값이 -1처럼 음수여야 체스 보드판 위로 기물이 올라온다
-        */
-
         //기물들의 초기위치 설정 밑  생성
         playerWhite = new GameObject[]
         {
@@ -54,11 +58,6 @@ public class Game : MonoBehaviour
             SetPosition(playerBlack[i]);
             SetPosition(playerWhite[i]);
         }
-
-        
-        //Instantiate(chesspiece, new Vector3(0, 0, -1), Quaternion.identity); // 가운데에 실험용 기물을 두는 코드
-        /*chesspiece에게 위치를 주는 함수.
-        z값이 -1처럼 음수여야 체스 보드판 위로 기물이 올라온다*/
     }
 
     public GameObject Create(string name, int x, int y)
@@ -116,5 +115,55 @@ public class Game : MonoBehaviour
     {
         if (x < 0 || y < 0 || x >= boardPositions.GetLength(0) || y >= boardPositions.GetLength(1)) return false;
         return true;
+    }
+
+    // 흑 기물의 턴을 처리하는 함수
+    public void ComputerTurn()
+    {
+        // 흑 기물 목록 갱신
+        List<GameObject> blackPieces = playerBlack.Where(piece => piece != null).ToList();
+
+        // 흑 기물이 남아있으면
+        if (blackPieces.Count > 0)
+        {
+            // 이동 가능 경로를 찾을 때까지 반복
+            while (true)
+            {
+                // 흑 기물 중 랜덤으로 하나 선택
+                GameObject selectedPiece = blackPieces[Random.Range(0, blackPieces.Count)];
+
+                // 선택된 기물의 이동 가능 경로 생성
+                selectedPiece.GetComponent<Chessman>().InitiateMovePlates();
+
+                // 이동 가능 경로가 있으면 이동
+                if (selectedPiece.GetComponent<Chessman>().CanMove())
+                {
+                    // 흑 기물 이동
+                    selectedPiece.GetComponent<Chessman>().Move();
+
+                    // 흑 기물 목록 갱신 (필요한 경우)
+                    blackPieces = playerBlack.Where(piece => piece != null).ToList();
+
+                    break; // 이동 후 반복 종료
+                }
+                else
+                {
+                    // 이동 가능 경로가 없으면 다른 기물을 선택
+                    blackPieces.Remove(selectedPiece); // 선택한 기물 제외
+
+                    // 흑 기물이 더 이상 없으면 게임 종료 처리
+                    if (blackPieces.Count == 0)
+                    {
+                        gameOver = true;
+                        break; // 반복 종료
+                    }
+                }
+            }
+        }
+        else
+        {
+            // 흑 기물이 없으면 게임 종료 처리
+            gameOver = true;
+        }
     }
 }

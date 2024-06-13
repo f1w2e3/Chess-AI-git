@@ -280,5 +280,35 @@ public class Chessman : MonoBehaviour
         mpScript.SetReference(gameObject);
         mpScript.SetCoords(matrixX, matrixY);
     }
-}
 
+    // 해당 기물이 이동 가능한지 여부 반환
+    public bool CanMove()
+    {
+        // 이동 가능 경로 생성
+        InitiateMovePlates();
+
+        // 이동 가능한 경로가 있는지 확인
+        GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
+
+        return movePlates.Length > 0;
+    }
+
+    // 해당 기물을 이동시키는 함수
+    public void Move()
+    {
+        // 이동 가능 경로 생성
+        InitiateMovePlates();
+
+        // 이동 가능한 경로가 있는지 확인
+        GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
+
+        if (movePlates.Length > 0)
+        {
+            // 이동 가능한 경로 중 하나를 랜덤으로 선택
+            GameObject targetMovePlate = movePlates[Random.Range(0, movePlates.Length)];
+
+            // 선택된 이동 경로로 기물 이동
+            targetMovePlate.GetComponent<MovePlate>().OnMouseUp();
+        }
+    }
+}
