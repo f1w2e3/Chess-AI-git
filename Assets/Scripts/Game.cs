@@ -75,26 +75,42 @@ public class Game : MonoBehaviour
         }
     }
 
-    private IEnumerator MoveBlackPiece()
+      private IEnumerator MoveBlackPiece()
     {
         yield return new WaitForSeconds(1); // 흑이 움직이기 전에 1초 지연
 
-        GameObject piece = GetRandomBlackPieceWithMoves();
-        if (piece != null)
+        // 미니맥스 알고리즘을 사용하여 최선의 수 계산
+    (int value, Move move) result = Minimax(10, int.MinValue, int.MaxValue, "black");
+    Move bestMove = result.move;
+
+    Debug.Log($"Minimax evaluation: {result.value}, Move: ({bestMove.startX}, {bestMove.startY}) -> ({bestMove.endX}, {bestMove.endY})"); // 디버그 메시지 추가
+
+        if (bestMove != null)
         {
-            piece.GetComponent<Chessman>().OnMouseUp();
+            GameObject pieceToMove = boardPositions[bestMove.startX, bestMove.startY];
+            pieceToMove.GetComponent<Chessman>().OnMouseUp();
 
             yield return new WaitForSeconds(1); // 기물이 이동하기 전에 1초 지연
 
-            if (GameObject.FindGameObjectsWithTag("MovePlate").Length > 0)
+            GameObject movePlateToClick = null;
+            GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
+            foreach (GameObject mp in movePlates)
             {
-                FindObjectOfType<MovePlate>().ExecuteRandomMove();
+                MovePlate mpScript = mp.GetComponent<MovePlate>();
+                if (mpScript.matrixX == bestMove.endX && mpScript.matrixY == bestMove.endY)
+                {
+                    movePlateToClick = mp;
+                    break;
+                }
+            }
+
+            if (movePlateToClick != null)
+            {
+                movePlateToClick.GetComponent<MovePlate>().OnMouseUp();
             }
             else
             {
-                // 만약 이동 가능한 위치가 없다면 다른 기물을 선택한다.
-                Debug.Log("No valid moves for selected piece. Trying another piece.");
-                StartCoroutine(MoveBlackPiece());
+                Debug.LogError("Error: Could not find move plate for calculated best move.");
             }
         }
         else
@@ -105,6 +121,188 @@ public class Game : MonoBehaviour
         }
     }
 
+    private (int value, Move move) Minimax(int depth, int alpha, int beta, string maximizingPlayer)
+    {
+        if (depth == 0 || IsGameOver())
+        {
+            return (EvaluateBoard(), null);
+        }
+
+        Move bestMove = null;
+        if (maximizingPlayer == "black")
+        {
+            int maxEval = int.MinValue;
+            foreach (GameObject piece in playerBlack)
+            {
+                Chessman cm = piece.GetComponent<Chessman>();
+                cm.DestroyMovePlates();
+                cm.InitiateMovePlates();
+
+                GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
+                foreach (GameObject mp in movePlates)
+                {
+                    MovePlate mpScript = mp.GetComponent<MovePlate>();
+                    int endX = mpScript.matrixX;
+                    int endY = mpScript.matrixY;
+
+                    // 임시 이동
+                    int startX = cm.GetXBoard();
+                    int startY = cm.GetYBoard();
+                    GameObject capturedPiece = GetPosition(endX, endY);
+                    SetPositionEmpty(startX, startY);
+                    cm.SetXBoard(endX);
+                    cm.SetYBoard(endY);
+                    SetPosition(piece);
+
+                    // 재귀 호출
+                    int eval = Minimax(depth - 1, alpha, beta, "white").value;
+
+                    // 되돌리기
+                    SetPositionEmpty(endX, endY);
+                    cm.SetXBoard(startX);
+                    cm.SetYBoard(startY);
+                    SetPosition(piece);
+                    if (capturedPiece != null)
+                    {
+                        SetPosition(capturedPiece);
+                    }
+
+                    if (eval > maxEval)
+                    {
+                        maxEval = eval;
+                        bestMove = new Move(startX, startY, endX, endY);
+                    }
+
+                    alpha = Mathf.Max(alpha, eval);
+                    if (beta <= alpha)
+                    {
+                        cm.DestroyMovePlates();
+                        return (maxEval, bestMove); // Beta cut-off
+                    }
+                }
+                cm.DestroyMovePlates();
+            }
+            return (maxEval, bestMove);
+        }
+        else
+        {
+            int minEval = int.MaxValue;
+            foreach (GameObject piece in playerWhite)
+            {
+                // ... (위와 동일한 로직, 단지 최소화하는 플레이어이므로 minEval, beta 사용)
+            }
+            return (minEval, bestMove);
+        }
+    }
+
+    // 체스 보드 상태를 평가하는 함수 (단순화된 예시)
+    /*private int EvaluateBoard()
+    {
+        int score = 0;
+        for (int y = 0; y < 8; y++)
+        {
+            for (int x = 0; x < 8; x++)
+            {
+                GameObject piece = GetPosition(x, y);
+                if (piece != null)
+                {
+                    Chessman cm = piece.GetComponent<Chessman>();
+                    if (cm.player == "black")
+                    {
+                        score += GetPieceValue(cm.name);
+                    }
+                    else
+                    {
+                        score -= GetPieceValue(cm.name);
+                    }
+                }
+            }
+        }
+        return score;
+    }*/
+
+    private int EvaluateBoard() {
+    int score = 0;
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
+            GameObject piece = GetPosition(x, y);
+            if (piece != null) {
+                Chessman cm = piece.GetComponent<Chessman>();
+                int pieceValue = GetPieceValue(cm.name);
+
+                // 기물의 색깔에 따라 점수를 더하거나 뺍니다.
+                if (cm.player == "black") {
+                    score += pieceValue;
+                } else {
+                    score -= pieceValue;
+                }
+
+                // 룩 활동성 보너스
+                if (cm.name == "black_rook" || cm.name == "white_rook") {
+                    // 룩이 있는 줄에 다른 기물이 없는 경우 보너스 점수를 부여합니다.
+                    bool openFile = true;
+                    for (int i = 0; i < 8; i++) {
+                        if (i != y && GetPosition(x, i) != null) {
+                            openFile = false;
+                            break;
+                        }
+                    }
+                    if (openFile) {
+                        score += cm.player == "black" ? 2 : -2;
+                    }
+                }
+
+                // // ... 다른 기물에 대한 위치 평가 로직 추가 ...
+            }
+        }
+    }
+
+    // 킹의 안전 평가 (예: 킹 주변에 기물이 적을수록 안전)
+    // ...
+
+    return score;
+}
+
+    // 체스 기물의 가치를 반환하는 함수 (단순화된 예시)
+    private int GetPieceValue(string pieceName)
+    {
+        switch (pieceName)
+        {
+            case "black_pawn":
+            case "white_pawn":
+                return 1;
+            case "black_knight":
+            case "white_knight":
+            case "black_bishop":
+            case "white_bishop":
+                return 3;
+            case "black_rook":
+            case "white_rook":
+                return 5;
+            case "black_queen":
+            case "white_queen":
+                return 9;
+            default:
+                return 0;
+        }
+    }
+
+    // 이동을 나타내는 클래스
+    private class Move
+    {
+        public int startX;
+        public int startY;
+        public int endX;
+        public int endY;
+
+        public Move(int startX, int startY, int endX, int endY)
+        {
+            this.startX = startX;
+            this.startY = startY;
+            this.endX = endX;
+            this.endY = endY;
+        }
+    }
     public void SetPosition(GameObject obj)
     {
         Chessman cm = obj.GetComponent<Chessman>();
@@ -126,6 +324,7 @@ public class Game : MonoBehaviour
         if (x < 0 || y < 0 || x >= boardPositions.GetLength(0) || y >= boardPositions.GetLength(1)) return false;
         return true;
     }
+
 
     public GameObject GetRandomBlackPieceWithMoves()
     {
@@ -152,4 +351,5 @@ public class Game : MonoBehaviour
 
         return null;
     }
+    
 }

@@ -8,8 +8,8 @@ public class MovePlate : MonoBehaviour
 
     GameObject reference = null;
 
-    int matrixX;
-    int matrixY;
+    public int matrixX;
+    public int matrixY;
 
     public bool attack = false;
 
@@ -61,6 +61,7 @@ public class MovePlate : MonoBehaviour
         return reference;
     }
 
+
     public void ExecuteRandomMove()
     {
         GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
@@ -70,4 +71,5 @@ public class MovePlate : MonoBehaviour
             movePlates[index].GetComponent<MovePlate>().OnMouseUp();
         }
     }
+    
 }
