@@ -117,35 +117,56 @@ public class Game : MonoBehaviour
     }
 
     // 흑 플레이어의 랜덤 이동 처리
-    private IEnumerator MoveBlackPiece()
+  private IEnumerator MoveBlackPiece()
+{
+    yield return new WaitForSeconds(1); // 흑이 움직이기 전에 1초 지연
+
+    // 보드판 위에 남아있는 흑 기물만 선택하기 위해 리스트를 초기화
+    List<GameObject> movableBlackPieces = new List<GameObject>();
+
+    // 흑 기물 배열에서 각 기물을 순회하며 보드판에 존재하는지 확인
+    foreach (GameObject piece in playerBlack)
     {
-        yield return new WaitForSeconds(1); // 흑이 움직이기 전에 1초 지연
-
-        GameObject piece = GetRandomBlackPieceWithMoves();
-        if (piece != null)
+        if (piece != null) // 기물이 파괴되지 않았는지 확인
         {
-            piece.GetComponent<Chessman>().OnMouseUp();
+            movableBlackPieces.Add(piece); 
+        }
+    }
 
-            yield return new WaitForSeconds(1); // 기물이 이동하기 전에 1초 지연
+    // 이동 가능한 흑 기물이 남아있는지 확인
+    if (movableBlackPieces.Count > 0)
+    {
+        GameObject piece = movableBlackPieces[Random.Range(0, movableBlackPieces.Count)]; // 랜덤으로 선택
 
-            if (GameObject.FindGameObjectsWithTag("MovePlate").Length > 0)
-            {
-                FindObjectOfType<MovePlate>().ExecuteRandomMove();
-            }
-            else
-            {
-                // 만약 이동 가능한 위치가 없다면 다른 기물을 선택한다.
-                Debug.Log("No valid moves for selected piece. Trying another piece.");
-                StartCoroutine(MoveBlackPiece());
-            }
+        piece.GetComponent<Chessman>().OnMouseUp(); // 흑 기물 선택 후 이동 경로 표시
+
+        yield return new WaitForSeconds(1); // 기물이 이동하기 전에 1초 지연
+
+        if (GameObject.FindGameObjectsWithTag("MovePlate").Length > 0)
+        {
+            FindObjectOfType<MovePlate>().ExecuteRandomMove(); // 랜덤으로 이동 경로 선택 후 이동
         }
         else
         {
-            // 만약 움직일 수 있는 기물이 없다면 턴을 건너뛴다.
-            Debug.Log("No movable pieces for black. Skipping turn.");
-            NextTurn();
+            // 만약 이동 가능한 위치가 없다면 다른 기물을 선택한다.
+            Debug.Log("No valid moves for selected piece. Trying another piece.");
+            StartCoroutine(MoveBlackPiece());
+        }
+
+        // 컴퓨터 플레이어 턴 종료 시 MovePlate 오브젝트 삭제
+        GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
+        for (int i = 0; i < movePlates.Length; i++)
+        {
+            Destroy(movePlates[i]);
         }
     }
+    else
+    {
+        // 만약 움직일 수 있는 기물이 없다면 턴을 건너뛴다.
+        Debug.Log("No movable pieces for black. Skipping turn.");
+        NextTurn();
+    }
+}
 
     // 흑 플레이어의 이동 가능한 기물 중 랜덤으로 하나를 선택
     public GameObject GetRandomBlackPieceWithMoves()
