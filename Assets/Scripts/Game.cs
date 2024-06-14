@@ -5,6 +5,7 @@ using UnityEngine;
 public class Game : MonoBehaviour
 {
     public GameObject chesspiece; // 체스 기물
+    public GameObject movePlate2; // 새로운 MovePlate 프리팹
 
     public GameObject[,] boardPositions = new GameObject[8, 8];
     private GameObject[] playerBlack = new GameObject[16];
@@ -12,6 +13,7 @@ public class Game : MonoBehaviour
 
     private string currentPlayer = "white";
     private bool gameOver = false;
+    private GameObject currentBlackPiece = null; // 현재 흑 기물을 저장하기 위한 변수
 
     void Start()
     {
@@ -77,32 +79,59 @@ public class Game : MonoBehaviour
 
     private IEnumerator MoveBlackPiece()
     {
-        yield return new WaitForSeconds(1); // 흑이 움직이기 전에 1초 지연
+        // 흑 기물을 랜덤으로 선택하고 이동 가능한 위치 표시
+        currentBlackPiece = GetRandomBlackPieceWithMoves();
 
-        GameObject piece = GetRandomBlackPieceWithMoves();
-        if (piece != null)
+        // 1초 후에 movePlate2를 생성
+        yield return new WaitForSeconds(1);
+        SpawnMovePlate2(currentBlackPiece); 
+
+        // 1초 후에 movePlate2를 제거
+        yield return new WaitForSeconds(1);
+        Destroy(GameObject.FindGameObjectWithTag("MovePlate2"));
+
+        // 흑 기물이 이동 가능한 위치가 있으면 랜덤으로 이동
+        if (GameObject.FindGameObjectsWithTag("MovePlate2").Length > 0)
         {
-            piece.GetComponent<Chessman>().OnMouseUp();
-
-            yield return new WaitForSeconds(1); // 기물이 이동하기 전에 1초 지연
-
-            if (GameObject.FindGameObjectsWithTag("MovePlate").Length > 0)
-            {
-                FindObjectOfType<MovePlate>().ExecuteRandomMove();
-            }
-            else
-            {
-                // 만약 이동 가능한 위치가 없다면 다른 기물을 선택한다.
-                Debug.Log("No valid moves for selected piece. Trying another piece.");
-                StartCoroutine(MoveBlackPiece());
-            }
+            FindObjectOfType<MovePlate>().ExecuteRandomMove();
         }
         else
         {
-            // 만약 움직일 수 있는 기물이 없다면 턴을 건너뛴다.
-            Debug.Log("No movable pieces for black. Skipping turn.");
-            NextTurn();
+            // 만약 이동 가능한 위치가 없다면 다른 기물을 선택한다.
+            Debug.Log("No valid moves for selected piece. Trying another piece.");
+            StartCoroutine(MoveBlackPiece());
         }
+    }
+
+    // movePlate2를 생성하는 함수
+    private void SpawnMovePlate2(GameObject blackPiece)
+    {
+        // 흑 기물이 이동 가능한 위치를 표시
+        blackPiece.GetComponent<Chessman>().InitiateMovePlates();
+
+        // "MovePlate2" 태그를 가진 모든 객체를 파괴
+        GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate2");
+        foreach (GameObject movePlate in movePlates)
+        {
+            Destroy(movePlate);
+        }
+
+        // 이동 가능한 위치에 "MovePlate2" 생성
+        movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
+        foreach (GameObject movePlate in movePlates)
+        {
+            MovePlate movePlateScript = movePlate.GetComponent<MovePlate>();
+            Vector3 position = movePlate.transform.position;
+            GameObject newMovePlate = Instantiate(movePlate2, position, Quaternion.identity);
+            newMovePlate.tag = "MovePlate2";
+            MovePlate newMovePlateScript = newMovePlate.GetComponent<MovePlate>();
+            newMovePlateScript.SetReference(blackPiece); // 기물 참조 설정
+            newMovePlateScript.SetCoords(movePlateScript.matrixX, movePlateScript.matrixY); // 좌표 설정
+            newMovePlateScript.attack = movePlateScript.attack; // 공격 여부 설정
+        }
+
+        // 이동 가능한 위치 표시를 제거
+        blackPiece.GetComponent<Chessman>().DestroyMovePlates();
     }
 
     public void SetPosition(GameObject obj)
