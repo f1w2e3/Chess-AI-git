@@ -1519,7 +1519,7 @@ public GameObject GetRandomBlackPieceWithMoves()
         gameOver = false;
 
         //Using UnityEngine.SceneManagement is needed here
-        SceneManager.LoadScene("Game"); //Restarts the game by loading the scene over again
+        SceneManager.LoadScene("MenuScene"); //Restarts the game by loading the scene over again
     }
 }
 
