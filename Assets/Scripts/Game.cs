@@ -11,7 +11,7 @@ public class Game : MonoBehaviour
     private GameObject[] playerWhite = new GameObject[16];
 
     private string currentPlayer = "white";
-    private bool gameOver = false;
+    public bool gameOver = false;
 
     void Start()
     {
@@ -75,15 +75,15 @@ public class Game : MonoBehaviour
         }
     }
 
-      private IEnumerator MoveBlackPiece()
+    private IEnumerator MoveBlackPiece()
     {
         yield return new WaitForSeconds(1); // 흑이 움직이기 전에 1초 지연
 
         // 미니맥스 알고리즘을 사용하여 최선의 수 계산
-    (int value, Move move) result = Minimax(10, int.MinValue, int.MaxValue, "black");
-    Move bestMove = result.move;
+        (int value, Move move) result = Minimax(2, "black"); // 탐색 깊이를 2로 조정
+        Move bestMove = result.move;
 
-    Debug.Log($"Minimax evaluation: {result.value}, Move: ({bestMove.startX}, {bestMove.startY}) -> ({bestMove.endX}, {bestMove.endY})"); // 디버그 메시지 추가
+        Debug.Log($"Minimax evaluation: {result.value}, Move: ({bestMove.startX}, {bestMove.startY}) -> ({bestMove.endX}, {bestMove.endY})");
 
         if (bestMove != null)
         {
@@ -112,6 +112,7 @@ public class Game : MonoBehaviour
             {
                 Debug.LogError("Error: Could not find move plate for calculated best move.");
             }
+            
         }
         else
         {
@@ -121,7 +122,7 @@ public class Game : MonoBehaviour
         }
     }
 
-    private (int value, Move move) Minimax(int depth, int alpha, int beta, string maximizingPlayer)
+    private (int value, Move move) Minimax(int depth, string maximizingPlayer)
     {
         if (depth == 0 || IsGameOver())
         {
@@ -134,6 +135,8 @@ public class Game : MonoBehaviour
             int maxEval = int.MinValue;
             foreach (GameObject piece in playerBlack)
             {
+                if (piece == null) continue; 
+
                 Chessman cm = piece.GetComponent<Chessman>();
                 cm.DestroyMovePlates();
                 cm.InitiateMovePlates();
@@ -145,7 +148,6 @@ public class Game : MonoBehaviour
                     int endX = mpScript.matrixX;
                     int endY = mpScript.matrixY;
 
-                    // 임시 이동
                     int startX = cm.GetXBoard();
                     int startY = cm.GetYBoard();
                     GameObject capturedPiece = GetPosition(endX, endY);
@@ -154,10 +156,8 @@ public class Game : MonoBehaviour
                     cm.SetYBoard(endY);
                     SetPosition(piece);
 
-                    // 재귀 호출
-                    int eval = Minimax(depth - 1, alpha, beta, "white").value;
+                    int eval = Minimax(depth - 1, "white").value;
 
-                    // 되돌리기
                     SetPositionEmpty(endX, endY);
                     cm.SetXBoard(startX);
                     cm.SetYBoard(startY);
@@ -172,33 +172,66 @@ public class Game : MonoBehaviour
                         maxEval = eval;
                         bestMove = new Move(startX, startY, endX, endY);
                     }
-
-                    alpha = Mathf.Max(alpha, eval);
-                    if (beta <= alpha)
-                    {
-                        cm.DestroyMovePlates();
-                        return (maxEval, bestMove); // Beta cut-off
-                    }
                 }
                 cm.DestroyMovePlates();
             }
             return (maxEval, bestMove);
         }
-        else
+        else // minimizingPlayer "white"
         {
             int minEval = int.MaxValue;
             foreach (GameObject piece in playerWhite)
             {
-                // ... (위와 동일한 로직, 단지 최소화하는 플레이어이므로 minEval, beta 사용)
+                if (piece == null) continue;
+
+                Chessman cm = piece.GetComponent<Chessman>();
+                cm.DestroyMovePlates();
+                cm.InitiateMovePlates();
+
+                GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
+                foreach (GameObject mp in movePlates)
+                {
+                    MovePlate mpScript = mp.GetComponent<MovePlate>();
+                    int endX = mpScript.matrixX;
+                    int endY = mpScript.matrixY;
+
+                    int startX = cm.GetXBoard();
+                    int startY = cm.GetYBoard();
+                    GameObject capturedPiece = GetPosition(endX, endY);
+                    SetPositionEmpty(startX, startY);
+                    cm.SetXBoard(endX);
+                    cm.SetYBoard(endY);
+                    SetPosition(piece);
+
+                    int eval = Minimax(depth - 1, "black").value;
+
+                    SetPositionEmpty(endX, endY);
+                    cm.SetXBoard(startX);
+                    cm.SetYBoard(startY);
+                    SetPosition(piece);
+                    if (capturedPiece != null)
+                    {
+                        SetPosition(capturedPiece);
+                    }
+
+                    if (eval < minEval)
+                    {
+                        minEval = eval;
+                        bestMove = new Move(startX, startY, endX, endY);
+                    }
+                }
+                cm.DestroyMovePlates();
             }
             return (minEval, bestMove);
         }
     }
 
-    // 체스 보드 상태를 평가하는 함수 (단순화된 예시)
-    /*private int EvaluateBoard()
+
+    // 체스 보드 상태를 평가하는 함수
+    private int EvaluateBoard()
     {
         int score = 0;
+
         for (int y = 0; y < 8; y++)
         {
             for (int x = 0; x < 8; x++)
@@ -207,61 +240,145 @@ public class Game : MonoBehaviour
                 if (piece != null)
                 {
                     Chessman cm = piece.GetComponent<Chessman>();
-                    if (cm.player == "black")
+                    int pieceValue = GetPieceValue(cm.name);
+
+                    // 기물의 색깔에 따라 점수를 더하거나 뺍니다.
+                    score += cm.player == "black" ? pieceValue : -pieceValue;
+
+                    // 기물 종류에 따라 위치 및 활동성 점수 추가
+                    switch (cm.name)
                     {
-                        score += GetPieceValue(cm.name);
-                    }
-                    else
-                    {
-                        score -= GetPieceValue(cm.name);
+                        case "black_pawn":
+                        case "white_pawn":
+                            score += cm.player == "black" ? PawnPositionBonus(y) : -PawnPositionBonus(7 - y);
+                            break;
+                        case "black_knight":
+                        case "white_knight":
+                            score += cm.player == "black" ? KnightPositionBonus(x, y) : -KnightPositionBonus(7 - x, 7 - y);
+                            break;
+                        case "black_bishop":
+                        case "white_bishop":
+                            score += cm.player == "black" ? BishopPositionBonus(x, y) : -BishopPositionBonus(7 - x, 7 - y);
+                            break;
+                        case "black_rook":
+                        case "white_rook":
+                            score += cm.player == "black" ? RookPositionBonus(x, y) : -RookPositionBonus(7 - x, 7 - y);
+                            break;
+                        case "black_queen":
+                        case "white_queen":
+                            score += cm.player == "black" ? QueenPositionBonus(x, y) : -QueenPositionBonus(7 - x, 7 - y);
+                            break;
+                        case "black_king":
+                        case "white_king":
+                            score += cm.player == "black" ? KingPositionBonus(x, y, IsEndGame()) : -KingPositionBonus(7 - x, 7 - y, IsEndGame());
+                            break;
                     }
                 }
             }
         }
+
         return score;
-    }*/
+    }
 
-    private int EvaluateBoard() {
-    int score = 0;
-    for (int y = 0; y < 8; y++) {
-        for (int x = 0; x < 8; x++) {
-            GameObject piece = GetPosition(x, y);
-            if (piece != null) {
-                Chessman cm = piece.GetComponent<Chessman>();
-                int pieceValue = GetPieceValue(cm.name);
+    // 폰 위치 보너스 (진출할수록 높은 점수)
+    private int PawnPositionBonus(int y)
+    {
+        return y;
+    }
 
-                // 기물의 색깔에 따라 점수를 더하거나 뺍니다.
-                if (cm.player == "black") {
-                    score += pieceValue;
-                } else {
-                    score -= pieceValue;
-                }
+    // 나이트 위치 보너스 (중앙 위치일수록 높은 점수)
+    private int KnightPositionBonus(int x, int y)
+    {
+        // TODO: 나이트 전초기지 보너스
+        return -Mathf.Abs(x - 3) - Mathf.Abs(y - 3);
+    }
 
-                // 룩 활동성 보너스
-                if (cm.name == "black_rook" || cm.name == "white_rook") {
-                    // 룩이 있는 줄에 다른 기물이 없는 경우 보너스 점수를 부여합니다.
-                    bool openFile = true;
-                    for (int i = 0; i < 8; i++) {
-                        if (i != y && GetPosition(x, i) != null) {
-                            openFile = false;
-                            break;
-                        }
-                    }
-                    if (openFile) {
-                        score += cm.player == "black" ? 2 : -2;
-                    }
-                }
+    // 비숍 위치 보너스 (대각선으로 움직일 수 있는 칸 수에 따라 점수 부여)
+    private int BishopPositionBonus(int x, int y)
+    {
+        int bonus = 0;
+        bonus += CountFreeDiagonalSquares(x, y, 1, 1);
+        bonus += CountFreeDiagonalSquares(x, y, 1, -1);
+        bonus += CountFreeDiagonalSquares(x, y, -1, 1);
+        bonus += CountFreeDiagonalSquares(x, y, -1, -1);
 
-                // // ... 다른 기물에 대한 위치 평가 로직 추가 ...
+        // TODO: 비숍 페어 보너스 추가
+        return bonus;
+    }
+
+    // 룩 위치 보너스 (열린 줄에 있으면 보너스)
+    private int RookPositionBonus(int x, int y)
+    {
+        int bonus = 0;
+
+        // 열린 줄 확인
+        bool openFile = true;
+        for (int i = 0; i < 8; i++)
+        {
+            if (i != y && GetPosition(x, i) != null)
+            {
+                openFile = false;
+                break;
             }
+        }
+        if (openFile) bonus += 5;
+
+        // TODO: 룩 연결 보너스 추가
+        // TODO: 7랭크 보너스 추가
+        return bonus;
+    }
+
+    // 퀸 위치 보너스 (중앙 위치일수록 높은 점수)
+    private int QueenPositionBonus(int x, int y)
+    {
+        // TODO: 퀸 활동성 고려
+        return (8 - Mathf.Abs(x - 3) - Mathf.Abs(y - 3));
+    }
+
+    // 킹 위치 보너스 (엔드게임에서는 중앙, 아니면 안전한 구석)
+    private int KingPositionBonus(int x, int y, bool endGame)
+    {
+        if (endGame)
+        {
+            return (8 - Mathf.Abs(x - 3) - Mathf.Abs(y - 3)); // 엔드게임: 중앙 보너스
+        }
+        else
+        {
+            // TODO: 킹 안전 고려 (주변에 아군 기물 많으면 보너스)
+            return (7 - y);
         }
     }
 
-    // 킹의 안전 평가 (예: 킹 주변에 기물이 적을수록 안전)
-    // ...
+    // 주어진 방향으로 비숍이 움직일 수 있는 빈 칸 수 계산
+    private int CountFreeDiagonalSquares(int x, int y, int dx, int dy)
+    {
+        int count = 0;
+        while (PositionOnBoard(x + dx, y + dy) && GetPosition(x + dx, y + dy) == null)
+        {
+            count++;
+            x += dx;
+            y += dy;
+        }
+        return count;
+    }
 
-    return score;
-}
+    // 엔드게임인지 판단 (단순화된 예시: 퀸이 없으면 엔드게임)
+    private bool IsEndGame()
+    {
+        // TODO: 더 정확한 엔드게임 판단 로직 필요
+        for (int y = 0; y < 8; y++)
+        {
+            for (int x = 0; x < 8; x++)
+            {
+                GameObject piece = GetPosition(x, y);
+                if (piece != null && (piece.name == "black_queen" || piece.name == "white_queen"))
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
     // 체스 기물의 가치를 반환하는 함수 (단순화된 예시)
     private int GetPieceValue(string pieceName)
@@ -282,6 +399,9 @@ public class Game : MonoBehaviour
             case "black_queen":
             case "white_queen":
                 return 9;
+            case "black_king":
+            case "white_king":
+                return 100; // 킹의 가치는 게임의 승패와 직결되므로 매우 크게 설정
             default:
                 return 0;
         }
@@ -303,6 +423,7 @@ public class Game : MonoBehaviour
             this.endY = endY;
         }
     }
+
     public void SetPosition(GameObject obj)
     {
         Chessman cm = obj.GetComponent<Chessman>();

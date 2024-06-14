@@ -28,7 +28,20 @@ public class MovePlate : MonoBehaviour
         if (attack)
         {
             GameObject cp = controller.GetComponent<Game>().GetPosition(matrixX, matrixY);
-            Destroy(cp);
+
+            if (cp != null) // null 확인 추가
+            {
+                if (cp.name == "white_king")
+                {
+                    controller.GetComponent<Game>().gameOver = true;
+                }
+                else if (cp.name == "black_king")
+                {
+                    controller.GetComponent<Game>().gameOver = true;
+                }
+
+                Destroy(cp);
+            }
         }
 
         controller.GetComponent<Game>().SetPositionEmpty(reference.GetComponent<Chessman>().GetXBoard(),
@@ -61,7 +74,6 @@ public class MovePlate : MonoBehaviour
         return reference;
     }
 
-
     public void ExecuteRandomMove()
     {
         GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
@@ -71,5 +83,4 @@ public class MovePlate : MonoBehaviour
             movePlates[index].GetComponent<MovePlate>().OnMouseUp();
         }
     }
-    
 }

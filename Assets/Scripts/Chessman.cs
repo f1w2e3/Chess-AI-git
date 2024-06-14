@@ -54,14 +54,11 @@ public class Chessman : MonoBehaviour
 
     public void OnMouseUp()
     {
-        if (!controller.GetComponent<Game>().IsGameOver())
+        if (!controller.GetComponent<Game>().IsGameOver() && 
+            controller.GetComponent<Game>().GetCurrentPlayer() == player)
         {
-            if (controller.GetComponent<Game>().GetCurrentPlayer() == player)
-            {
-                DestroyMovePlates();
-
-                InitiateMovePlates();
-            }
+            DestroyMovePlates();
+            InitiateMovePlates();
         }
     }
 
@@ -239,6 +236,7 @@ public class Chessman : MonoBehaviour
         y += -2.8f;
 
         GameObject mp = Instantiate(movePlate, new Vector3(x, y, -3.0f), Quaternion.identity);
+
         MovePlate mpScript = mp.GetComponent<MovePlate>();
         mpScript.SetReference(gameObject);
         mpScript.SetCoords(matrixX, matrixY);
@@ -256,6 +254,7 @@ public class Chessman : MonoBehaviour
         y += -2.8f;
 
         GameObject mp = Instantiate(movePlate, new Vector3(x, y, -3.0f), Quaternion.identity);
+
         MovePlate mpScript = mp.GetComponent<MovePlate>();
         mpScript.attack = true;
         mpScript.SetReference(gameObject);
