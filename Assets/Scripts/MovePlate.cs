@@ -8,8 +8,8 @@ public class MovePlate : MonoBehaviour
 
     GameObject reference = null;
 
-    int matrixX;
-    int matrixY;
+   public  int matrixX;
+    public int matrixY;
 
     public bool attack = false;
 
