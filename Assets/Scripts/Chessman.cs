@@ -95,6 +95,8 @@ public class Chessman : MonoBehaviour
 
             //이동 경로 생성
             InitiateMovePlates();
+                // 턴 넘기기
+        controller.GetComponent<Game>().NextTurn(); 
         }
     }
 
