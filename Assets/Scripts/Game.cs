@@ -8,6 +8,8 @@ public class Game : MonoBehaviour
 {
 public GameObject chesspiece; // 체스 기물
 
+public Text text1;
+
 // 체스에서 흑과 백 각각 갖고 있는 기물의 총 개수는 16개
 // 기물들의 위치를 저장
 // 체스 보드판은 8*8 사이즈의 64개 칸으로 이루어져있음. 이를 2차원 배열로 저장함
@@ -28,6 +30,7 @@ void Start()
       //z값이 -1처럼 음수여야 체스 보드판 위로 기물이 올라온다
     */
 
+   text1 = GameObject.FindGameObjectWithTag("Minimax").GetComponent<Text>();
     // 기물들의 초기위치 설정 밑  생성
     playerWhite = new GameObject[]
     {
@@ -159,6 +162,7 @@ private IEnumerator MoveWhitePiece()
             {
                 // 만약 이동 가능한 위치가 없다면 다른 기물을 선택한다.
                 Debug.Log("No valid moves for selected piece. Trying another piece.");
+             text1.text = "No valid moves for selected piece. Trying another piece.";
                 StartCoroutine(MoveWhitePiece());
             }
         }
@@ -166,6 +170,7 @@ private IEnumerator MoveWhitePiece()
         {
             // 만약 움직일 수 있는 기물이 없다면 턴을 건너뛴다.
             Debug.Log("No movable pieces for white. Skipping turn.");
+               text1.text ="No movable pieces for white. Skipping turn.";
             NextTurn();
         }
     }
@@ -346,6 +351,7 @@ yield return new WaitForSeconds(1); // 흑이 움직이기 전에 1초 지연
     ChessBoard virtualBoard = new ChessBoard(); // 가상 체스판 생성
     Move bestMove = virtualBoard.Minimax(3, true); // 미니맥스 알고리즘 실행 (깊이 3)
     Debug.Log($"최선의 수: {bestMove.From.X}, {bestMove.From.Y} -> {bestMove.To.X}, {bestMove.To.Y}");
+     text1.text = $"최선의 수: {bestMove.From.X}, {bestMove.From.Y} -> {bestMove.To.X}, {bestMove.To.Y}";
 
 //애플
 //여기서 애플
@@ -465,6 +471,7 @@ private class ChessBoard
 
         
     }
+
 
     // 체스판 출력 함수
     public void PrintBoard()
