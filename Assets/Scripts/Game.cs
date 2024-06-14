@@ -112,7 +112,7 @@ private IEnumerator MoveBlackPiece()
     Debug.Log($"최선의 수: {bestMove.From.X}, {bestMove.From.Y} -> {bestMove.To.X}, {bestMove.To.Y}");
 
 //애플
-
+//여기서 애플
     // 이동 가능한 흑색 기물을 찾습니다.
     GameObject piece = GetRandomBlackPieceWithMoves();
         if (piece != null)
@@ -189,6 +189,7 @@ private void PrintBoard()
 // 가상 체스판 클래스
 private class ChessBoard
 {
+    private float totalScore = 0; // 총 점수
     // 가상 체스판 (각 칸은 기물 이름 문자열로 표현)
     private string[,] board = new string[8, 8];
 
@@ -222,6 +223,8 @@ private class ChessBoard
         {
             board[i, 6] = "p";
         }
+
+        
     }
 
     // 체스판 출력 함수
@@ -261,42 +264,46 @@ private class ChessBoard
         }
 
         // 최대화 플레이어 (흑)
-        if (isMaximizingPlayer)
-        {
-            Move bestMove = new Move(new Position(-1, -1), new Position(-1, -1), float.MinValue);
-            foreach (Move move in GetPossibleMoves(isMaximizingPlayer ? "black" : "white"))
+            if (isMaximizingPlayer)
             {
-                Debug.Log($"Trying move: {move.From.X}, {move.From.Y} -> {move.To.X}, {move.To.Y}");
-                ApplyMove(move);
-                float score = Minimax(depth - 1, false).Score;
-                UndoMove(move);
-
-                if (score > bestMove.Score)
+                Move bestMove = new Move(new Position(-1, -1), new Position(-1, -1), float.MinValue);
+                foreach (Move move in GetPossibleMoves(isMaximizingPlayer ? "black" : "white"))
                 {
-                    bestMove = new Move(move.From, move.To, score);
+                    Debug.Log($"Trying move: {move.From.X}, {move.From.Y} -> {move.To.X}, {move.To.Y}");
+                    ApplyMove(move);
+                    float score = Minimax(depth - 1, false).Score;
+                    UndoMove(move);
+
+                    Debug.Log($"Current Score: {totalScore}"); // 현재 점수 출력
+
+                    if (score > bestMove.Score)
+                    {
+                        bestMove = new Move(move.From, move.To, score);
+                    }
                 }
+                Debug.Log($"Best move for black: {bestMove.From.X}, {bestMove.From.Y} -> {bestMove.To.X}, {bestMove.To.Y}, Score: {bestMove.Score}");
+                return bestMove;
             }
-            Debug.Log($"Best move for black: {bestMove.From.X}, {bestMove.From.Y} -> {bestMove.To.X}, {bestMove.To.Y}, Score: {bestMove.Score}");
-            return bestMove;
-        }
-        // 최소화 플레이어 (백)
-        else
-        {
-            Move bestMove = new Move(new Position(-1, -1), new Position(-1, -1), float.MaxValue);
-            foreach (Move move in GetPossibleMoves(isMaximizingPlayer ? "black" : "white"))
+            // 최소화 플레이어 (백)
+            else
             {
-                Debug.Log($"Trying move: {move.From.X}, {move.From.Y} -> {move.To.X}, {move.To.Y}");
-                ApplyMove(move);
-                float score = Minimax(depth - 1, true).Score;
-                UndoMove(move);
-
-                if (score < bestMove.Score)
+                Move bestMove = new Move(new Position(-1, -1), new Position(-1, -1), float.MaxValue);
+                foreach (Move move in GetPossibleMoves(isMaximizingPlayer ? "black" : "white"))
                 {
-                    bestMove = new Move(move.From, move.To, score);
+                    Debug.Log($"Trying move: {move.From.X}, {move.From.Y} -> {move.To.X}, {move.To.Y}");
+                    ApplyMove(move);
+                    float score = Minimax(depth - 1, true).Score;
+                    UndoMove(move);
+
+                    Debug.Log($"Current Score: {totalScore}"); // 현재 점수 출력
+
+                    if (score < bestMove.Score)
+                    {
+                        bestMove = new Move(move.From, move.To, score);
+                    }
                 }
-            }
-            Debug.Log($"Best move for white: {bestMove.From.X}, {bestMove.From.Y} -> {bestMove.To.X}, {bestMove.To.Y}, Score: {bestMove.Score}");
-            return bestMove;
+                Debug.Log($"Best move for white: {bestMove.From.X}, {bestMove.From.Y} -> {bestMove.To.X}, {bestMove.To.Y}, Score: {bestMove.Score}");
+                return bestMove;
         }
     }
 
@@ -1197,13 +1204,27 @@ private class ChessBoard
 
     // 이동 적용 (가상 체스판)
     private void ApplyMove(Move move)
+{
+    if (move.From != null && move.To != null)
     {
-        if (move.From != null && move.To != null)
+        // 이동 대상 위치에 기물이 있다면 제거
+        if (board[move.To.X, move.To.Y] != null)
         {
-            board[move.To.X, move.To.Y] = board[move.From.X, move.From.Y];
-            board[move.From.X, move.From.Y] = null;
+            // 상대 기물 파괴 시 점수 추가 또는 감소
+            if (char.IsUpper(board[move.To.X, move.To.Y][0])) // 흑색 기물 파괴
+            {
+                totalScore += GetPieceValue(board[move.To.X, move.To.Y]); 
+            }
+            else // 백색 기물 파괴
+            {
+                totalScore -= GetPieceValue(board[move.To.X, move.To.Y]); 
+            }
         }
+
+        board[move.To.X, move.To.Y] = board[move.From.X, move.From.Y];
+        board[move.From.X, move.From.Y] = null;
     }
+}
 
     // 이동 취소 (가상 체스판)
     private void UndoMove(Move move)
