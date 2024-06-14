@@ -39,6 +39,7 @@ public class Game : MonoBehaviour
             SetPosition(playerBlack[i]);
             SetPosition(playerWhite[i]);
         }
+          StartCoroutine(MoveWhitePiece());
     }
 
     public GameObject Create(string name, int x, int y)
@@ -62,7 +63,7 @@ public class Game : MonoBehaviour
         return gameOver;
     }
 
-    public void NextTurn()
+     public void NextTurn()
     {
         if (currentPlayer == "white")
         {
@@ -72,8 +73,65 @@ public class Game : MonoBehaviour
         else
         {
             currentPlayer = "white";
+            StartCoroutine(MoveWhitePiece()); // 백도 랜덤으로 움직이도록 코루틴 실행
         }
     }
+        private IEnumerator MoveWhitePiece()
+    {
+        yield return new WaitForSeconds(1); // 백이 움직이기 전에 1초 지연
+
+        GameObject piece = GetRandomWhitePieceWithMoves();
+        if (piece != null)
+        {
+            piece.GetComponent<Chessman>().OnMouseUp();
+
+            yield return new WaitForSeconds(1); // 기물이 이동하기 전에 1초 지연
+
+            if (GameObject.FindGameObjectsWithTag("MovePlate").Length > 0)
+            {
+                FindObjectOfType<MovePlate>().ExecuteRandomMove();
+            }
+            else
+            {
+                // 만약 이동 가능한 위치가 없다면 다른 기물을 선택한다.
+                Debug.Log("No valid moves for selected piece. Trying another piece.");
+                StartCoroutine(MoveWhitePiece());
+            }
+        }
+        else
+        {
+            // 만약 움직일 수 있는 기물이 없다면 턴을 건너뛴다.
+            Debug.Log("No movable pieces for white. Skipping turn.");
+            NextTurn();
+        }
+    }
+
+    public GameObject GetRandomWhitePieceWithMoves()
+    {
+        List<GameObject> movablePieces = new List<GameObject>();
+
+        foreach (GameObject piece in playerWhite)
+        {
+            Chessman cm = piece.GetComponent<Chessman>();
+            cm.DestroyMovePlates();
+            cm.InitiateMovePlates();
+
+            if (GameObject.FindGameObjectsWithTag("MovePlate").Length > 0)
+            {
+                movablePieces.Add(piece);
+            }
+            cm.DestroyMovePlates();
+        }
+
+        if (movablePieces.Count > 0)
+        {
+            int index = Random.Range(0, movablePieces.Count);
+            return movablePieces[index];
+        }
+
+        return null;
+    }
+
 
     private IEnumerator MoveBlackPiece()
     {

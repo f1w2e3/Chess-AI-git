@@ -52,19 +52,19 @@ public class Chessman : MonoBehaviour
         this.transform.position = new Vector3(x, y, -1.0f);
     }
 
-    public void OnMouseUp()
+     public void OnMouseUp()
     {
         if (!controller.GetComponent<Game>().IsGameOver())
         {
-            if (controller.GetComponent<Game>().GetCurrentPlayer() == player)
+            // 플레이어 턴 확인 (백이 랜덤으로 움직이도록 변경)
+            if (controller.GetComponent<Game>().GetCurrentPlayer() == player || player == "white")
             {
                 DestroyMovePlates();
-
                 InitiateMovePlates();
             }
         }
     }
-
+    
     public void SetXBoard(int x)
     {
         xBoard = x;
