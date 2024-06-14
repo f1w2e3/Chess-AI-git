@@ -86,12 +86,80 @@ public void NextTurn()
         currentPlayer = "black";
         // 흑의 턴이 시작되면 컴퓨터가 이동
         StartCoroutine(MoveBlackPiece()); 
+
     }
     else
     {
+        if(ChessGameMode.GameMode2=="m2")
+        {
         currentPlayer = "white";
+        }
+        else
+        if(ChessGameMode.GameMode2=="m4")
+        {
+             currentPlayer = "white";
+            StartCoroutine(MoveWhitePiece()); // 백도 랜덤으로 움직이도록 코루틴 실행
+        }
     }
 }
+
+private IEnumerator MoveWhitePiece()
+    {
+        yield return new WaitForSeconds(1); // 백이 움직이기 전에 1초 지연
+
+        GameObject piece = GetRandomWhitePieceWithMoves();
+        if (piece != null)
+        {
+            piece.GetComponent<Chessman>().OnMouseUp();
+
+            yield return new WaitForSeconds(1); // 기물이 이동하기 전에 1초 지연
+
+            if (GameObject.FindGameObjectsWithTag("MovePlate").Length > 0)
+            {
+                FindObjectOfType<MovePlate>().ExecuteRandomMove();
+            }
+            else
+            {
+                // 만약 이동 가능한 위치가 없다면 다른 기물을 선택한다.
+                Debug.Log("No valid moves for selected piece. Trying another piece.");
+                StartCoroutine(MoveWhitePiece());
+            }
+        }
+        else
+        {
+            // 만약 움직일 수 있는 기물이 없다면 턴을 건너뛴다.
+            Debug.Log("No movable pieces for white. Skipping turn.");
+            NextTurn();
+        }
+    }
+
+    public GameObject GetRandomWhitePieceWithMoves()
+    {
+        List<GameObject> movablePieces = new List<GameObject>();
+
+        foreach (GameObject piece in playerWhite)
+        {
+            Chessman cm = piece.GetComponent<Chessman>();
+            cm.DestroyMovePlates();
+            cm.InitiateMovePlates();
+
+            if (GameObject.FindGameObjectsWithTag("MovePlate").Length > 0)
+            {
+                movablePieces.Add(piece);
+            }
+            cm.DestroyMovePlates();
+        }
+
+        if (movablePieces.Count > 0)
+        {
+            int index = Random.Range(0, movablePieces.Count);
+            return movablePieces[index];
+        }
+
+        return null;
+    }
+
+
 
 public void SetPosition(GameObject obj)
 {
@@ -117,9 +185,15 @@ public bool PositionOnBoard(int x, int y)
     return true;
 }
 
+
+
+
 // 흑 플레이어의 랜덤 이동 처리
 private IEnumerator MoveBlackPiece()
 {
+
+     if(ChessGameMode.GameMode2=="m2")
+     {
 yield return new WaitForSeconds(1); // 흑이 움직이기 전에 1초 지연
 
 // 보드판 위에 남아있는 흑 기물만 선택하기 위해 리스트를 초기화
@@ -196,6 +270,37 @@ yield return new WaitForSeconds(1); // 흑이 움직이기 전에 1초 지연
         Winner("Black");
         yield break;
     }
+
+     }
+     else  if(ChessGameMode.GameMode2=="m4")
+     {
+ yield return new WaitForSeconds(1); // 흑이 움직이기 전에 1초 지연
+
+        GameObject piece = GetRandomBlackPieceWithMoves();
+        if (piece != null)
+        {
+            piece.GetComponent<Chessman>().OnMouseUp();
+
+            yield return new WaitForSeconds(1); // 기물이 이동하기 전에 1초 지연
+
+            if (GameObject.FindGameObjectsWithTag("MovePlate").Length > 0)
+            {
+                FindObjectOfType<MovePlate>().ExecuteRandomMove();
+            }
+            else
+            {
+                // 만약 이동 가능한 위치가 없다면 다른 기물을 선택한다.
+                Debug.Log("No valid moves for selected piece. Trying another piece.");
+                StartCoroutine(MoveBlackPiece());
+            }
+        }
+        else
+        {
+            // 만약 움직일 수 있는 기물이 없다면 턴을 건너뛴다.
+            Debug.Log("No movable pieces for black. Skipping turn.");
+            NextTurn();
+        }
+     }
 }
 
 // 흑 플레이어의 이동 가능한 기물 중 랜덤으로 하나를 선택

@@ -90,10 +90,15 @@ public void DestroyMovePlates()
     {
         Destroy(movePlates[i]);
     }
-}
+}   
+
+
+//6.15. 여기부터
 
 public void OnMouseUp()
 {
+    if(ChessGameMode.GameMode2=="m2")
+    {
     if (!controller.GetComponent<Game>().IsGameOver() && controller.GetComponent<Game>().GetCurrentPlayer() == player)
     {
         // 이전 이동 경로 제거
@@ -101,6 +106,19 @@ public void OnMouseUp()
 
         // 이동 경로 생성
         InitiateMovePlates();
+    }
+    }
+    else 
+    if(ChessGameMode.GameMode2=="m4")
+    {
+         if (!controller.GetComponent<Game>().IsGameOver() && controller.GetComponent<Game>().GetCurrentPlayer() == player)
+    {
+        // 이전 이동 경로 제거
+        DestroyMovePlates();
+
+        // 이동 경로 생성
+        InitiateMovePlates();
+    }
     }
 }
 
