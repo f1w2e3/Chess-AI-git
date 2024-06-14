@@ -1520,6 +1520,7 @@ public GameObject GetRandomBlackPieceWithMoves()
 
         //Using UnityEngine.SceneManagement is needed here
         SceneManager.LoadScene("MenuScene"); //Restarts the game by loading the scene over again
+    //메뉴씬으로 돌아가는 조작 여기서 가능
     }
 }
 
