@@ -9,8 +9,8 @@ public class MovePlate : MonoBehaviour
     GameObject reference = null;
 
     // 이동 좌표
-    int matrixX;
-    int matrixY;
+    public int matrixX;
+    public int matrixY;
 
     // false = 이동, true = 공격
     public bool attack = false;
@@ -32,6 +32,15 @@ public class MovePlate : MonoBehaviour
             GameObject cp = controller.GetComponent<Game>().GetPosition(matrixX, matrixY);
 
             Destroy(cp);
+
+             if (cp.name == "white_king")
+        {
+            controller.GetComponent<Game>().Winner("Black"); // 흑 승리 처리
+        }
+        else if (cp.name == "black_king")
+        {
+            controller.GetComponent<Game>().Winner("White"); // 백 승리 처리
+        }
         }
 
         controller.GetComponent<Game>().SetPositionEmpty(reference.GetComponent<Chessman>().GetXBoard(),

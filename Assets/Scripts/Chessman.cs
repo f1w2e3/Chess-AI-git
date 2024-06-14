@@ -13,7 +13,7 @@ public class Chessman : MonoBehaviour
     private int yBoard = -1;
 
     // black player와 white player를 구분하기 위함. 체스에서 흰 말을 플레이하는 사람이 white player
-    private string player;
+    public string player;
 
     // 체스모드에 따른 기물 움직임을 위해 저장
     // 폰의 최초 이동시 두칸이나 캐슬링을 위해 이 기물이 이동했는지를 저장
@@ -102,6 +102,7 @@ public class Chessman : MonoBehaviour
 
     public void InitiateMovePlates()
     {
+        
         switch (this.name)
         {
             case "black_queen":
