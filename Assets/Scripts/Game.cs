@@ -6,7 +6,7 @@ public class Game : MonoBehaviour
 {
     public GameObject chesspiece; // 체스 기물
 
-    public GameObject[,] boardPositions = new GameObject[8, 8];
+    public GameObject[,] boardPositions = new GameObject[8, 8]; 
     private GameObject[] playerBlack = new GameObject[16];
     private GameObject[] playerWhite = new GameObject[16];
 
@@ -82,6 +82,14 @@ public class Game : MonoBehaviour
         GameObject piece = GetRandomBlackPieceWithMoves();
         if (piece != null)
         {
+            // 미니맥스 알고리즘 실행 (디버그 용도)
+           MinimaxAI minimax = new MinimaxAI(this);
+            int bestScore = minimax.Minimax(boardPositions, 3, true, int.MinValue, int.MaxValue);
+            GameObject bestPiece = minimax.GetBestPiece();
+
+            Debug.Log("미니맥스 최고 점수: " + bestScore);
+            Debug.Log("미니맥스 최고 기물: "  /* + bestPiece.name 내가 임의로*/);
+
             piece.GetComponent<Chessman>().OnMouseUp();
 
             yield return new WaitForSeconds(1); // 기물이 이동하기 전에 1초 지연
