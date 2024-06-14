@@ -8,11 +8,11 @@ public class MovePlate : MonoBehaviour
 
     GameObject reference = null;
 
-    //Ã¼½ºÆÇ Æ÷Áö¼Ç
+    // ì´ë™ ì¢Œí‘œ
     int matrixX;
     int matrixY;
 
-    //false = ÀÌµ¿, true = °ø°İ
+    // false = ì´ë™, true = ê³µê²©
     public bool attack = false;
 
     public void Start()
@@ -43,6 +43,8 @@ public class MovePlate : MonoBehaviour
 
         controller.GetComponent<Game>().SetPosition(reference);
 
+        controller.GetComponent<Game>().NextTurn();
+
         reference.GetComponent<Chessman>().DestroyMovePlates();
     }
 
@@ -60,5 +62,16 @@ public class MovePlate : MonoBehaviour
     public GameObject GetReference()
     {
         return reference;
+    }
+
+    // ëœë¤ìœ¼ë¡œ ì´ë™ ê²½ë¡œë¥¼ ì„ íƒí•˜ì—¬ ì´ë™
+    public void ExecuteRandomMove()
+    {
+        GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
+        if (movePlates.Length > 0)
+        {
+            int index = Random.Range(0, movePlates.Length);
+            movePlates[index].GetComponent<MovePlate>().OnMouseUp();
+        }
     }
 }
