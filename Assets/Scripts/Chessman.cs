@@ -97,7 +97,7 @@ public void DestroyMovePlates()
 
 public void OnMouseUp()
 {
-    if(ChessGameMode.GameMode2=="m2"||ChessGameMode.GameMode2=="m3")
+    if(ChessGameMode.GameMode2=="m2"||ChessGameMode.GameMode2=="m3"||ChessGameMode.GameMode2=="m1")
     {
     if (!controller.GetComponent<Game>().IsGameOver() && controller.GetComponent<Game>().GetCurrentPlayer() == player)
     {
