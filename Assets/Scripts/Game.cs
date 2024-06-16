@@ -318,7 +318,7 @@ yield return new WaitForSeconds(1); // 흑이 움직이기 전에 1초 지연
      {
  yield return new WaitForSeconds(1); // 흑이 움직이기 전에 1초 지연
 
-        GameObject piece = GetRandomBlackPieceWithMoves();
+        GameObject piece = GetRandomBlackPieceWithMovesOnBoard();
         if (piece != null)
         {
             piece.GetComponent<Chessman>().OnMouseUp();
@@ -356,7 +356,7 @@ yield return new WaitForSeconds(1); // 흑이 움직이기 전에 1초 지연
 //애플
 //여기서 애플
     // 이동 가능한 흑색 기물을 찾습니다.
-    GameObject piece = GetRandomBlackPieceWithMoves();
+    GameObject piece = GetRandomBlackPieceWithMovesOnBoard();
         if (piece != null)
         {
             piece.GetComponent<Chessman>().OnMouseUp();
@@ -1493,21 +1493,24 @@ private class ChessBoard
 
 
 // 흑 플레이어의 이동 가능한 기물 중 랜덤으로 하나를 선택
-public GameObject GetRandomBlackPieceWithMoves()
+public GameObject GetRandomBlackPieceWithMovesOnBoard()
 {
     List<GameObject> movablePieces = new List<GameObject>();
 
     foreach (GameObject piece in playerBlack)
     {
-        Chessman cm = piece.GetComponent<Chessman>();
-        cm.DestroyMovePlates();
-        cm.InitiateMovePlates();
-
-        if (GameObject.FindGameObjectsWithTag("MovePlate").Length > 0)
+        if (piece != null) // 기물이 파괴되지 않았는지 확인
         {
-            movablePieces.Add(piece);
+            Chessman cm = piece.GetComponent<Chessman>();
+            cm.DestroyMovePlates();
+            cm.InitiateMovePlates();
+
+            if (GameObject.FindGameObjectsWithTag("MovePlate").Length > 0)
+            {
+                movablePieces.Add(piece);
+            }
+            cm.DestroyMovePlates();
         }
-        cm.DestroyMovePlates();
     }
 
     if (movablePieces.Count > 0)
