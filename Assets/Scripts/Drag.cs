@@ -9,14 +9,14 @@ public class Drag : MonoBehaviour
 
     private void OnMouseDown()
     {
-        // ï¿½ï¿½ï¿½ì½ºï¿½ï¿½ ï¿½â¹° ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½Ç¾ï¿½ï¿½ï¿½ ï¿½ï¿½
+        // ¸¶¿ì½º°¡ ±â¹° À§¿¡¼­ Å¬¸¯µÇ¾úÀ» ¶§
         offset = gameObject.transform.position - GetMouseWorldPos();
         isDragging = true;
     }
 
     private void OnMouseDrag()
     {
-        // ï¿½ï¿½ï¿½ì½ºï¿½ï¿½ ï¿½â¹° ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½å·¡ï¿½×µÇ°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
+        // ¸¶¿ì½º°¡ ±â¹° À§¿¡¼­ µå·¡±×µÇ°í ÀÖÀ» ¶§
         if (isDragging)
         {
             Vector3 newPosition = GetMouseWorldPos() + offset;
@@ -26,13 +26,13 @@ public class Drag : MonoBehaviour
 
     private void OnMouseUp()
     {
-        // ï¿½ï¿½ï¿½ì½º ï¿½ï¿½Æ°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
+        // ¸¶¿ì½º ¹öÆ°À» ³õ¾ÒÀ» ¶§
         isDragging = false;
     }
 
     private Vector3 GetMouseWorldPos()
     {
-        // ï¿½ï¿½ï¿½ì½º ï¿½ï¿½Ä¡ï¿½ï¿½ È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½ï¿½È¯
+        // ¸¶¿ì½º À§Ä¡¸¦ È­¸é »óÀÇ ÁÂÇ¥·Î º¯È¯
         Vector3 mousePos = Input.mousePosition;
         mousePos.z = Camera.main.nearClipPlane;
         return Camera.main.ScreenToWorldPoint(mousePos);
@@ -40,7 +40,7 @@ public class Drag : MonoBehaviour
 
     private void SnapToGrid()
     {
-        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½â¹°ï¿½ï¿½ ï¿½Ìµï¿½ï¿½ï¿½Åµï¿½Ï´ï¿½
+        // °¢±â Á¤ÇØÁø À§Ä¡·Î ±â¹°À» ÀÌµ¿½ÃÅµ´Ï´Ù
         transform.position = new Vector3(Mathf.Round(transform.position.x),
                                          Mathf.Round(transform.position.y),
                                          Mathf.Round(transform.position.z));

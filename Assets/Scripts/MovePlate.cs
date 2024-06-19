@@ -8,12 +8,21 @@ public GameObject controller;
 
 GameObject reference = null;
 
+<<<<<<< HEAD
 // 이동 좌표
 public int matrixX;
 public int matrixY;
 
 // false = 이동, true = 공격
 public bool attack = false;
+=======
+    //ü���� ������
+    int matrixX;
+    int matrixY;
+
+    //false = �̵�, true = ����
+    public bool attack = false;
+>>>>>>> parent of 5e7441a (나이트 대체 카멜, 폰의 최초 이동시 두칸이동 구현)
 
 public void Start()
 {
@@ -79,8 +88,46 @@ public void ExecuteRandomMove()
     GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
     if (movePlates.Length > 0)
     {
+<<<<<<< HEAD
         int index = Random.Range(0, movePlates.Length);
         movePlates[index].GetComponent<MovePlate>().OnMouseUp();
+=======
+        controller = GameObject.FindGameObjectWithTag("GameController");
+
+        if (attack)
+        {
+            GameObject cp = controller.GetComponent<Game>().GetPosition(matrixX, matrixY);
+
+            Destroy(cp);
+        }
+
+        controller.GetComponent<Game>().SetPositionEmpty(reference.GetComponent<Chessman>().GetXBoard(),
+            reference.GetComponent<Chessman>().GetYBoard());
+
+        reference.GetComponent<Chessman>().SetXBoard(matrixX);
+        reference.GetComponent<Chessman>().SetYBoard(matrixY);
+        reference.GetComponent<Chessman>().SetCoords();
+
+        controller.GetComponent<Game>().SetPosition(reference);
+
+        reference.GetComponent<Chessman>().DestroyMovePlates();
+    }
+
+    public void SetCoords(int x, int y)
+    {
+        matrixX = x;
+        matrixY = y;
+    }
+
+    public void SetReference(GameObject obj)
+    {
+        reference = obj;
+    }
+
+    public GameObject GetReference()
+    {
+        return reference;
+>>>>>>> parent of 5e7441a (나이트 대체 카멜, 폰의 최초 이동시 두칸이동 구현)
     }
 }
 }
