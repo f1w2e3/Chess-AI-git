@@ -9,7 +9,6 @@ public GameObject controller;
 GameObject reference = null;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 // 이동 좌표
 public int matrixX;
 public int matrixY;
@@ -17,8 +16,6 @@ public int matrixY;
 // false = 이동, true = 공격
 public bool attack = false;
 =======
-=======
->>>>>>> parent of 5e7441a (나이트 대체 카멜, 폰의 최초 이동시 두칸이동 구현)
     //ü���� ������
     int matrixX;
     int matrixY;
