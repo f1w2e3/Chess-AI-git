@@ -4,63 +4,83 @@ using UnityEngine;
 
 public class MovePlate : MonoBehaviour
 {
-    public GameObject controller;
+public GameObject controller;
 
-    GameObject reference = null;
+GameObject reference = null;
 
-    //ü���� ������
-    int matrixX;
-    int matrixY;
+// 이동 좌표
+public int matrixX;
+public int matrixY;
 
-    //false = �̵�, true = ����
-    public bool attack = false;
+// false = 이동, true = 공격
+public bool attack = false;
 
-    public void Start()
+public void Start()
+{
+    if (attack)
     {
-        if (attack)
-        {
-            gameObject.GetComponent<SpriteRenderer>().color = new Color(1.0f, 0.0f, 0.0f, 1.0f);
-        }
+        gameObject.GetComponent<SpriteRenderer>().color = new Color(1.0f, 0.0f, 0.0f, 1.0f);
+    }
+}
+
+public void OnMouseUp()
+{
+    controller = GameObject.FindGameObjectWithTag("GameController");
+
+    if (attack)
+    {
+        GameObject cp = controller.GetComponent<Game>().GetPosition(matrixX, matrixY);
+
+        Destroy(cp);
+
+         if (cp.name == "white_king")
+    {
+        controller.GetComponent<Game>().Winner("Black"); // 흑 승리 처리
+    }
+    else if (cp.name == "black_king")
+    {
+        controller.GetComponent<Game>().Winner("White"); // 백 승리 처리
+    }
     }
 
-    public void OnMouseUp()
+    controller.GetComponent<Game>().SetPositionEmpty(reference.GetComponent<Chessman>().GetXBoard(),
+        reference.GetComponent<Chessman>().GetYBoard());
+
+    reference.GetComponent<Chessman>().SetXBoard(matrixX);
+    reference.GetComponent<Chessman>().SetYBoard(matrixY);
+    reference.GetComponent<Chessman>().SetCoords();
+
+    controller.GetComponent<Game>().SetPosition(reference);
+
+    controller.GetComponent<Game>().NextTurn();
+
+    reference.GetComponent<Chessman>().DestroyMovePlates();
+}
+
+public void SetCoords(int x, int y)
+{
+    matrixX = x;
+    matrixY = y;
+}
+
+public void SetReference(GameObject obj)
+{
+    reference = obj;
+}
+
+public GameObject GetReference()
+{
+    return reference;
+}
+
+// 랜덤으로 이동 경로를 선택하여 이동
+public void ExecuteRandomMove()
+{
+    GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
+    if (movePlates.Length > 0)
     {
-        controller = GameObject.FindGameObjectWithTag("GameController");
-
-        if (attack)
-        {
-            GameObject cp = controller.GetComponent<Game>().GetPosition(matrixX, matrixY);
-
-            Destroy(cp);
-        }
-
-        controller.GetComponent<Game>().SetPositionEmpty(
-            reference.GetComponent<Chessman>().GetXBoard(),
-            reference.GetComponent<Chessman>().GetYBoard());
-
-        reference.GetComponent<Chessman>().SetXBoard(matrixX);
-        reference.GetComponent<Chessman>().SetYBoard(matrixY);
-        reference.GetComponent<Chessman>().SetCoords();
-
-        controller.GetComponent<Game>().SetPosition(reference);
-
-        reference.GetComponent<Chessman>().SetIsMoved(true);
-        reference.GetComponent<Chessman>().DestroyMovePlates();
+        int index = Random.Range(0, movePlates.Length);
+        movePlates[index].GetComponent<MovePlate>().OnMouseUp();
     }
-
-    public void SetCoords(int x, int y)
-    {
-        matrixX = x;
-        matrixY = y;
-    }
-
-    public void SetReference(GameObject obj)
-    {
-        reference = obj;
-    }
-
-    public GameObject GetReference()
-    {
-        return reference;
-    }
+}
 }
