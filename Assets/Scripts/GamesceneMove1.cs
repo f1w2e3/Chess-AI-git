@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+
 public class GamesceneMove1 : MonoBehaviour
 {
-
-
+    void Awake() 
+    {
+    Screen.SetResolution(800, 600, false);
+    }
+    
     public void GameSceneCtrl_1()
     {
         ChessGameMode.GameMode = "default";
